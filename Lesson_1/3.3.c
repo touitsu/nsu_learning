@@ -2,7 +2,7 @@
 #include <math.h>
 
 
-int factorial(int a) {
+long int factorial(int a) {
 	if (a == 0) {
 		return 1;
 	}
@@ -10,6 +10,7 @@ int factorial(int a) {
 		return a * factorial(a - 1);
 	}
 }
+
 
 int main() {
 	int x, n, i;

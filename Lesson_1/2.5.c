@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
 
 
 int main() {
@@ -11,6 +10,6 @@ int main() {
 	if (M > N / 2) {
 		M = N - M;
 	}
-	printf("%d", M-1);
+	printf("%d", M - 1);
 	return 0;
 }

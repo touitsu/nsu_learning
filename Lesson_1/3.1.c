@@ -2,7 +2,7 @@
 
 
 int main() {
-	int i,s = 20*20;
+	int i,s = 20 * 20;
 	for (i = 19; i >= 1; i--) {
 		s -= i * i;
 	}

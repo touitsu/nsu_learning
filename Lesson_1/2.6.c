@@ -5,7 +5,7 @@
 int main() {
 	int a, b, c, d, e, f;
 	scanf_s("%d %d %d %d %d %d", &a, &b, &c, &d, &e, &f);
-	if ((abs(e-a) == 2 && abs(f-b) == 1) || (abs(e - a) == 1 && abs(f - b) == 2)) {
+	if ((abs(e - a) == 2 && abs(f - b) == 1) || (abs(e - a) == 1 && abs(f - b) == 2)) {
 		if (e == c && f == d) {
 			printf("Valid move.\n");
 		}

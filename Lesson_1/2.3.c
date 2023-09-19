@@ -12,6 +12,6 @@ int main() {
 	else {
 		printf("Long side to short side");
 	}
-	printf("\nLong side to %c side", (int)(115 - (int)ceil(((ceil((float)((a / c) * (b / d) - (a / d) * (b / c)))) / ceil((float)(abs((a / c) * (b / d) - (a / d) * (b / c)) + 0.1)))) *7)); //linear solution bc I can solve it linearly)))
+	printf("\nLong side to %c side", (int)(115 - (int)ceil(((ceil((float)((a / c) * (b / d) - (a / d) * (b / c)))) / ceil((float)(abs((a / c) * (b / d) - (a / d) * (b / c)) + 0.1)))) * 7)); //linear solution bc I can solve it linearly)))
 	return 0;
 }

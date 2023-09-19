@@ -12,7 +12,7 @@ int main() {
 		*str = '\0';
 	}
 	else if (k % 10 == 0 || k % 10 > 5) {
-		str = (char*)malloc(sizeof(char)*3);
+		str = (char*)malloc(sizeof(char) * 3);
 		*str = 'î';
 		*(str + 1) = 'â';
 		*(str + 2) = '\0';
