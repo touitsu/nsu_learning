@@ -1,4 +1,2 @@
-﻿  5.c
-C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\5.c(7,13): warning C4244: return: преобразование "double" в "float", возможна потеря данных
-C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\5.c(17): warning C4716: gaussarea: должна возвращать значение
+﻿  10.c
   Lesson_2.vcxproj -> C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\x64\Debug\Lesson_2.exe

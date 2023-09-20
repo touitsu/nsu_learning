@@ -3,24 +3,20 @@
 
 
 int max(int a, int b) {
-	if (a > b) {
+	if (a > b) 
 		return a;
-	}
-	else {
-		return b;
-	}
+	return b;
 }
 
-int count_not_even(int* start, int* end) {
+int countneven(int* start, int* end) {
 	int res = 0, m = 0;
 	for (int* i = start; i < end; i++) {
 		if(*(i)%2 == 0){
 			m = max(res, m);
 			res = 0;
 		}
-		else {
-			res += 1;
-		}
+		else 
+			res ++;
 	}
 	m = max(res, m);
 	return m;
@@ -31,9 +27,9 @@ int main() {
 	scanf_s("%d", &n);
 	int* nums;
 	nums = (int*)malloc(sizeof(int) * n);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
 		scanf_s("%d", nums + i);
-	}
-	printf("%d", count_not_even(nums, nums + n));
+	printf("%d", countneven(nums, nums + n));
+	free(nums);
 	return 0;
 }

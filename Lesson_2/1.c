@@ -4,12 +4,10 @@
 
 
 int check(int a) {
-	if (pow((int)sqrt(a), 2) == a) {
+	if (pow((int)sqrt(a), 2) == a) 
 		return 1;
-	}
-	else {
-		return 0;
-	}
+	return 0;
+	
 }
 
 int main() {
@@ -17,12 +15,10 @@ int main() {
 	scanf_s("%d", &n);
 	int* nums;
 	nums = (int*)malloc(sizeof(int) * n);
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
 		scanf_s("%d",nums + i);
-	}
-	for (int i = 0; i < n; i++) {
+	for (int i = 0; i < n; i++) 
 		res += check(*(nums + i));
-	}
 	printf("%d", res);
 	free(nums);
 	return 0;
