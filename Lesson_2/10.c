@@ -19,6 +19,10 @@ int main() {
 		scanf_s("%d", nums + i);
 	int i, j;
 	scanf_s("%d %d", &i, &j);
-	printf("%d", issymmetric(nums + i - 1, nums + j - 1));
+	if (issymmetric(nums + i - 1, nums + j - 1))
+		printf("This part of array is symmetric.");
+	else
+		printf("This part of array is not symmetric.");
+	free(nums);
 	return 0;
 }

@@ -45,5 +45,14 @@
     <ClCompile Include="10.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="11.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="12.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="13.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

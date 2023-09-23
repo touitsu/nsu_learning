@@ -2,16 +2,12 @@
 #include <malloc.h>
 
 
-int max(int a, int b) {
-	if (a > b)
-		return a;
-	return b;
-}
-
 int findmax(int* start, int* end, int res) {
 	if (start == end)
 		return res;
-	return findmax(start + 1, end, max(*start, res));
+	if (*start > res)
+		return findmax(start + 1, end, *start);
+	return findmax(start + 1, end, res);
 }
 
 int main() {
@@ -22,5 +18,6 @@ int main() {
 	for (int i = 0; i < n; i++) 
 		scanf_s("%d", nums + i);
 	printf("%d", findmax(nums, nums + n, 0));
+	free(nums);
 	return 0;
 }
