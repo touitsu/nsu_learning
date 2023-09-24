@@ -17,9 +17,8 @@ int* strtointarr(char* start, char* end) {
 int* movearray(int* arr, int n) {
 	for (int i = *arr - 1; i > n; i--)
 		*(arr + i) = *(arr + i - n);
-	for (int i = 1; i < n; i++) {
+	for (int i = 1; i < n; i++)
 		*(arr + i) = 0;
-	}
 	return arr;
 }
 
@@ -38,7 +37,7 @@ int* fact(int* arr) {
 		}
 		if (leftover > 0) {
 			*arr += (int)log10(leftover) + 1;
-			arr = realloc(arr, sizeof(int) * *arr);;
+			arr = realloc(arr, sizeof(int) * *arr);
 			movearray(arr, (int)log10(leftover) + 1);
 			*(arr + (int)log10(leftover) + 1) = leftover;
 			leftover = 0;
