@@ -23,8 +23,8 @@ int  main() {
 	for (int i = 0; i < n; i++)
 		scanf_s("%d", nums + i);
 	cur_n = nod(*nums, *(nums + 1));
-	for (int i = 2; i < n - 2; i++) 
-		cur_n = nod(cur_n, *(nums + 2));
+	for (int i = 2; i < n; i++) 
+		cur_n = nod(cur_n, *(nums + i));
 	printf("%d", cur_n);
 	free(nums);
 	return 0;
