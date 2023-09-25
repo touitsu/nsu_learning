@@ -1,3 +1,2 @@
-﻿  15.c
-C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\15.c(22,25): warning C4047: !=: "int" отличается по уровням косвенного обращения от "void *"
+﻿  1.c
   Lesson_2.vcxproj -> C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\x64\Debug\Lesson_2.exe

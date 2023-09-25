@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <malloc.h>
 #include <stdlib.h>
+#include <malloc.h>
 
 
-void fill_with_rnd(int* start, int* end) {
+void fillrnd(int* start, int* end) {
 	for (int* i = start; i < end; i++) 
 		*i = rand();	
 }
@@ -13,7 +13,7 @@ int main() {
 	scanf_s("%d", &n);
 	int* nums;
 	nums = (int*)malloc(sizeof(int) * n);
-	fill_with_rnd(nums, nums + n);
+	fillrnd(nums, nums + n);
 	for (int i = 0; i < n; i++) 
 		printf("%d\n", *(nums + i));
 	free(nums);
