@@ -48,6 +48,9 @@ int* fact(int* arr) {
 	for (int i = *arr - 1; i > 0; i--)
 		n += *(arr + i) * pow(10, *arr - i - 1);
 	for (int i = n - 1; i > 1; i--) {
+		if (i % 100 == 0) {
+			printf("%d\n", i);
+		}
 		for (int j = *arr - 1; j > 0; j--)
 			*(arr + j) *= i;
 		int leftover = 0;
