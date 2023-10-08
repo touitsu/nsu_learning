@@ -5,8 +5,10 @@
 
 
 int main() {
-    char * str = getinput();
-    printf("%d", countmaxconrepeats(str));
+    char* str = getinput();
+    int* res = cntamunqchrs(str);
+    printf("%c", findinarr(res, 3) + ' ' - 1);
     free(str);
+    free(res);
     return 0;
 }

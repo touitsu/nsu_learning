@@ -5,8 +5,8 @@
 
 
 int main() {
-    char * str = getinput();
-    printf("%d", countmaxconrepeats(str));
+    char* str = getinput();
+    printrvrs(str, ' ');
     free(str);
     return 0;
 }
