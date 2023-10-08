@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <malloc.h>
-#include "fucntions.h"
+#include "functions.h"
 
 
 int main() {
