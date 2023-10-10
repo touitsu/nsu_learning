@@ -4,7 +4,7 @@
 
 
 int maximum(int a, int b) {
-    if (a>b)
+    if (a > b)
         return a;
 
     return b;
@@ -267,21 +267,18 @@ char** sprt(char* string, char separator) {
     part = (char*)malloc(sizeof(char) * 2);
     lstsep = 0;
     j = 0;
-    i = 0;
     for (i = 0; *(string + i) != '\0'; i++) {
-
         if (*(string + i) == separator) {
-            if (getstrlen(part) > 2) {
+            if (!isinstr(separator, part) && getstrlen(part) > 0) {
                 j++;
+
                 result = (char**)realloc(result, sizeof(char*) * j);
                 if (result == NULL)
                     exit(-1);
 
-                *(part + i - lstsep) = '\0';
                 result[j - 1] = part;
-                lstsep = i + 1;
                 part = (char*)malloc(sizeof(char) * 2);
-                *(part + 1) = '\0';
+                *part = '\0';
             }
             lstsep = i + 1;
         }
@@ -292,6 +289,7 @@ char** sprt(char* string, char separator) {
                 exit(-1);
 
             *(part + i - lstsep) = *(string + i);
+            *(part + i - lstsep + 1) = '\0';
         }
     }
 

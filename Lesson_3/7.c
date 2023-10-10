@@ -13,8 +13,8 @@ void prntshrtststr(char* string) {
     min = getstrlen(stringarr[0]);
 
     for (int i = 0; i < stringlen; i++)
-        min = minimum(min, getstrlen(stringarr[i]));
-
+        min = minimum(min, getstrlen(*(stringarr + i)));
+    
     printf("%d\n", min);
 
     freematrix(stringarr);
