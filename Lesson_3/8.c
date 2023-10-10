@@ -14,6 +14,7 @@ int main() {
     sortbylen(strarr);
     printrvrs(strarr);
 
+    freematrix(strarr);
     free(str);
 
     return 0;

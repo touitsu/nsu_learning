@@ -25,6 +25,7 @@ int main() {
         }
     }
 
+    freematrix(strarr);
     free(str);
     
     return 0;

@@ -323,7 +323,6 @@ void printrvrs(char** stringarr) {
     for (int i = stringarrlen - 1; i >= 0; i--)
         printline(stringarr[i]);
 
-    freematrix(stringarr);
 }
 
 
@@ -379,4 +378,91 @@ int comparestr(char* str1, char* str2) {
     }
 
     return 1;
+}
+
+
+int hasrepeatables(char* string) {
+    int* chars;
+    int res;
+
+    chars = cntamunqchrs(string);
+    res = 0;
+
+    for (int i = 1; i < *chars; i++) {
+        if (*(chars + i) > 1)
+            res = 1;
+    }
+
+    return res;
+}
+
+
+void copy(char* str1, char* str2) {
+    int i;
+
+    for (i = 0; *(str2 + i) != '\0'; i++)
+        *(str1 + i) = *(str2 + i);
+
+    *(str1 + i) = '\0';
+}
+
+
+char** pythonkeywords() {
+    char** keywords;
+
+    keywords = (char**)malloc(sizeof(char*)*34);
+
+    for (int i = 0; i < 34; i++)
+        *(keywords + i) = (char*)malloc(sizeof(char) * 9);
+
+    copy(*(keywords), "False\0");
+    copy(*(keywords + 1), "None\0");
+    copy(*(keywords + 2), "True\0");
+    copy(*(keywords + 3), "and\0");
+    copy(*(keywords + 4), "as\0");
+    copy(*(keywords + 5), "assert\0");
+    copy(*(keywords + 6), "break\0");
+    copy(*(keywords + 7), "class\0");
+    copy(*(keywords + 8), "continue\0");
+    copy(*(keywords + 9), "def\0");
+    copy(*(keywords + 10), "del\0");
+    copy(*(keywords + 11), "elif\0");
+    copy(*(keywords + 12), "else\0");
+    copy(*(keywords + 13), "except\0");
+    copy(*(keywords + 14), "finally\0");
+    copy(*(keywords + 15), "for\0");
+    copy(*(keywords + 16), "from\0");
+    copy(*(keywords + 17), "global\0");
+    copy(*(keywords + 18), "if\0");
+    copy(*(keywords + 19), "import\0");
+    copy(*(keywords + 20), "in\0");
+    copy(*(keywords + 21), "is\0");
+    copy(*(keywords + 22), "lambda\0");
+    copy(*(keywords + 23), "nonlocal\0");
+    copy(*(keywords + 24), "not\0");
+    copy(*(keywords + 25), "or\0");
+    copy(*(keywords + 26), "pass\0");
+    copy(*(keywords + 27), "raise\0");
+    copy(*(keywords + 28), "return\0");
+    copy(*(keywords + 29), "try\0");
+    copy(*(keywords + 30), "while\0");
+    copy(*(keywords + 31), "with\0");
+    copy(*(keywords + 32), "yield\0");
+    copy(*(keywords + 33), "\0");
+
+    return keywords;
+}
+
+
+int* fromstrtointarr(char* str) {
+    int* arr;
+
+    arr = (int*)malloc(sizeof(int) * (getstrlen(str) + 1));
+
+    *arr = getstrlen(str) + 1;
+
+    for (int i = 0; i < *arr - 1; i++)
+        *(arr + i + 1) = *(str + i) - '0';
+
+    return arr;
 }

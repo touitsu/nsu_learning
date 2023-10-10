@@ -14,16 +14,12 @@ int main() {
 
     len = getstrarrlen(strarr);
 
-    for (int i = 0; i < len - 1; i++) {
-        for (int j = i + 1; j < len; j++)
-            if (comparestr(*(strarr + i), *(strarr + j))) {
-                printline(*(strarr + i));
-                printline(*(strarr + j));
-                i++;
-                printf("\n");
-            }
+    for (int i = 1; i < len; i++) {
+        if (comparestr(*strarr, *(strarr + i)) == 0 && !hasrepeatables(*(strarr + i)))
+            printstr(*(strarr + i));
     }
 
+    freematrix(strarr);
     free(str);
 
     return 0;

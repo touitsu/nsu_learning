@@ -53,4 +53,12 @@ void sortbylen(char** arr);
 
 int comparestr(char* str1, char* str2);
 
+int hasrepeatables(char* string);
+
+void copy(char* str1, char* str2);
+
+char** pythonkeywords();
+
+int* fromstrtointarr(char* str);
+
 #endif // FUNCTIONS_H_INCLUDED

@@ -9,7 +9,7 @@ int main() {
 
     str = getinput();
 
-    printf("%d", cntunqchrs(str, 'A', 'z'));
+    printf("%d", cntunqchrs(str, 'A', 'Z') + cntunqchrs(str, 'a', 'z'));
     
     free(str);
     

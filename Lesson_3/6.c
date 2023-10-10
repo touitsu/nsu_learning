@@ -13,6 +13,7 @@ int main() {
 
     printrvrs(strarr);
 
+    freematrix(strarr);
     free(str);
 
     return 0;
