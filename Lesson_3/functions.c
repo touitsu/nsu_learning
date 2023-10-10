@@ -319,7 +319,7 @@ void printrvrs(char** stringarr) {
 
     stringarrlen = getstrarrlen(stringarr);
 
-    for (int i = stringarrlen - 1; i >= 0; i--)
+    for (int i = 0; i < stringarrlen; i++)
         printline(stringarr[i]);
 
 }
