@@ -57,6 +57,7 @@ int main() {
         }
 
         else if (variant == '1') {
+
             free(guessedword);
 
             guessedword = getinput();
@@ -66,7 +67,6 @@ int main() {
 
             if (comparestr(guessedword, word))
                 win = 1;
-
             else
                 win = -1;
         }
@@ -78,7 +78,7 @@ int main() {
         printf("win!");
     else
         printf("loose!");
-
+    
     free(guessedword);
     free(word);
     free(help);

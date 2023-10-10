@@ -60,6 +60,9 @@
     <ClCompile Include="14.c">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="15.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="functions.h">
