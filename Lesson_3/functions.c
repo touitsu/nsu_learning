@@ -24,6 +24,7 @@ char* getinput() {
     char c;
 
     string = (char*)malloc(sizeof(char) * 2);
+    *(string) = '\0';
     c = getchar();
 
     for (int i = 0; c != '\n'; i++) {
