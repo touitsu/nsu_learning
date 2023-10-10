@@ -5,13 +5,16 @@
 
 
 int main() {
-    char * str;
-    
-    str = getinput();
+    char* str;
+    char** strarr;
 
-    printf("%d", countmaxspecconrepeats(str, ' '));
-    
+    str = getinput();
+    strarr = sprt(str, ' ');
+
+    sortbylen(strarr);
+    printrvrs(strarr);
+
     free(str);
-    
+
     return 0;
 }

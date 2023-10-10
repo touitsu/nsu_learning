@@ -5,8 +5,13 @@
 
 
 int main() {
-    char * str = getinput();
+    char * str;
+
+    str = getinput();
+
     printf("%d", countmaxconrepeats(str));
+    
     free(str);
+    
     return 0;
 }

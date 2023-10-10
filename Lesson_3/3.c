@@ -5,8 +5,13 @@
 
 
 int main() {
-    char* str = getinput();
+    char* str;
+
+    str = getinput();
+
     printf("%d", cntunqchrs(str, 'A', 'z'));
+    
     free(str);
+    
     return 0;
 }

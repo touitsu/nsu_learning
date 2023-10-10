@@ -5,8 +5,15 @@
 
 
 int main() {
-    char* str = getinput();
-    printrvrs(str, ' ');
+    char* str;
+    char** strarr;
+
+    str = getinput();
+    strarr = sprt(str, ' ');
+
+    printrvrs(strarr);
+
     free(str);
+
     return 0;
 }

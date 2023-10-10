@@ -3,9 +3,10 @@
 #include <malloc.h>
 
 
-int maximum(int a, int b){
+int maximum(int a, int b) {
     if (a>b)
         return a;
+
     return b;
 }
 
@@ -13,131 +14,170 @@ int maximum(int a, int b){
 int minimum(int a, int b) {
     if (a < b)
         return a;
+
     return b;
 }
 
 
-char* getinput(){
-    char* string = (char*)malloc(sizeof(char) * 2);
-    char c = getchar();
-    int i = 0;
-    while(c != '\n'){
+char* getinput() {
+    char* string;
+    char c;
+
+    string = (char*)malloc(sizeof(char) * 2);
+    c = getchar();
+
+    for (int i = 0; c != '\n'; i++) {
         *(string + i) = c;
         c = getchar();
-        i ++;
         string = (char*)realloc(string, sizeof(char) * (i+2));
         if (string == NULL)
             exit(-1);
         
-        *(string + i) = '\0';
+        *(string + i + 1) = '\0';
     }
+
     return string;
 }
 
 
 int getstrlen(char* string) {
-    int len = 0;
-    while (*(string + len) != '\0')
-        len++;
-    
-    return len;
+    int i;
+
+    for (i = 0; *(string + i) != '\0'; i++);
+
+    return i;
 }
 
 
 int getstrarrlen(char** stringarr) {
-    int len = 0;
-    while (stringarr[len][0] != '\0')
-        len++;
+    int i;
+
+    for (i = 0; stringarr[i][0] != '\0'; i++);
     
-    return len;
+    return i;
 }
 
 
 char* rvrsstring(char* stringstart, char* stringend) {
-    char* newstr = (char*)malloc(sizeof(char) * (stringend - stringstart + 1));
-    int i = 0;
-    while (stringstart + i  != stringend) {
+    char* newstr;
+    int i;
+
+    newstr = (char*)malloc(sizeof(char) * (stringend - stringstart + 1));
+    for (i = 0; stringstart + i != stringend; i++)
         *(newstr + i) = *(stringend - i - 1);
-        i++;
-    }
+    
     *(newstr + i) = '\0';
     return newstr;
 }
 
 
-void printstr(char* string){
-    int i = 0;
-    while (*(string + i) != '\0'){
+void printstr(char* string) {
+    for (int i = 0; *(string + i) != '\0'; i++)
         printf("%c", *(string + i));
-        i++;
-    }
+    
     printf("\n");
 }
 
 
 void printline(char* string) {
-    int i = 0;
-    while (*(string + i) != '\0') {
+    for (int i = 0; *(string + i) != '\0'; i++)
         printf("%c", *(string + i));
-        i++;
-    }
+
     printf(" ");
 }
+
 
 void printarr(int* arr) {
     for (int i = 0; i < *arr; i++)
         printf("%d\n", *(arr + i));
 }
 
-int countmaxspecconrepeats(char* string, char repeat){ //count maximum amount of specified continuous repeats
-    int res = 0, curres = 0, i = 0;
-    while(*(string + i) != '\0'){
+
+void printstrarr(char** strarr) {
+    int len;
+
+    len = getstrarrlen(strarr);
+
+    for (int i = 0; i < len; i++)
+        printstr(strarr[i]);
+}
+
+
+void freematrix(char** stringarr) {
+    int len;
+
+    len = getstrarrlen(stringarr);
+
+    for (int i = 0; i < len; i++)
+        free(stringarr[i]);
+    
+    free(stringarr);
+}
+
+
+int countmaxspecconrepeats(char* string, char repeat) { //count maximum amount of specified continuous repeats
+    int res = 0, curres = 0;
+
+    res = 0;
+    curres = 0;
+
+    for (int i = 0; *(string + i) != '\0'; i++) {
         if (repeat == *(string + i))
             curres ++;
-        else{
+
+        else {
             res = maximum(res,curres);
             curres = 0;
         }
-        i++;
     }
+
     res = maximum(res,curres);
     return res;
 }
 
 
-int countmaxconrepeats(char* string){
-    int res = 0, curres = 0, i = 0, lastc = -1;
-    while(*(string + i) != '\0'){
+int countmaxconrepeats(char* string) {
+    int res, curres, lastc;
+
+    res = 0;
+    curres = 0;
+    lastc = -1;
+
+    for (int i = 0; *(string + i) != '\0'; i++) {
         if(*(string + i) == lastc)
             curres ++;
 
-        else{
+        else {
+
             res = maximum(curres,res);
             curres = 1;
             lastc = *(string + i);
         }
-        i++;
     }
+
     res = maximum(curres,res);
     return res;
 }
 
 
-int isinstr(char c, char* string){
-    int i = 0;
-    while (*(string + i)){
+int isinstr(char c, char* string) {
+    for (int i = 0; *(string + i) != '\0'; i++) {
         if(*(string + i) == c)
             return 1;
-        i++;
     }
+
     return 0;
 }
 
 
-int cntunqchrs(char* string, int from, int to){                          // count unique chars
-    int res = 0, i = 0;
-    char* strofunqchars = (char*)malloc(sizeof(char) * 2);
-    while(*(string + i) != '\0'){
+int cntunqchrs(char* string, int from, int to) {                          // count unique chars
+    int res;
+    char* strofunqchars;
+
+    res = 0;
+    strofunqchars = (char*)malloc(sizeof(char) * 2);
+
+    for (int i = 0; *(string + i) != '\0'; i++) {
         if (*(string + i) >= from && *(string + i) <= to) {
             if (!isinstr(*(string + i), strofunqchars)) {
                 *(strofunqchars + res) = *(string + i);
@@ -147,45 +187,53 @@ int cntunqchrs(char* string, int from, int to){                          // coun
                     exit(-1);
             }
         }
-        i++;
     }
+
     free(strofunqchars);
     return res;
 }
 
 
 int* cntamunqchrs(char* string) {                                          // counq ammount of unique chars
-    int* res = (int*)malloc(sizeof(int) * (127 - ' ' + 1));
+    int* res;
+
+    res = (int*)malloc(sizeof(int) * (127 - ' ' + 1));
+
     for (int j = 1; j < 127 - ' ' + 1; j++)
         *(res + j) = 0;
 
     *res = 127 - ' ' + 1;
-    int i = 0;
-    while (*(string + i) != '\0') {
+
+    for(int i = 0; *(string + i) != '\0'; i++)
         *(res + *(string + i) - ' ' + 1) += 1;
-        i++;
-    }
+
     return res;
 }
 
 
 int findinarr(int* arr, int value) {
-    int res = -1;
+    int res;
+
+    res = -1;
+
     for (int i = 1; i < *arr; i++) {
         if (*(arr + i) == value)
             res = i;
         
     }
-    if (res == -1) {
+
+    if (res == -1)
         printf("Couldn't find %d in array", value);
-        exit(-1);
-    }
+
     return res;
 }
 
 
 int findinstr(char* stringstart, char* stringend, char element) {
-    int i = 0;
+    int i;
+
+    i = 0;
+
     while (*(stringstart + i) != element || stringstart + i != stringend)
         i++;
     
@@ -197,8 +245,11 @@ int findinstr(char* stringstart, char* stringend, char element) {
 
 
 int* sumarr(int* arr, int* arr1) {
-    int* res = (int*)malloc(sizeof(int) * *arr);
+    int* res;
+
+    res = (int*)malloc(sizeof(int) * *arr);
     *res = *arr;
+
     for (int i = 1; i < *res; i++)
         *(res + i) = *(arr + i) + *(arr1 + i);
 
@@ -207,51 +258,125 @@ int* sumarr(int* arr, int* arr1) {
 
 
 char** sprt(char* string, char separator) {
-    char** result = (char**)malloc(sizeof(char*));
-    char* part = (char*)malloc(sizeof(char) * 2);
-    int i = 0, lstsep = 0, j = 0;
-    while (*(string + i) != '\0') {
+    char** result;
+    char* part;
+    int lstsep, j, i;
+
+    result = (char**)malloc(sizeof(char*));
+    part = (char*)malloc(sizeof(char) * 2);
+    lstsep = 0;
+    j = 0;
+    i = 0;
+    for (i = 0; *(string + i) != '\0'; i++) {
+
         if (*(string + i) == separator) {
-            *(part + i - lstsep) = '\0';
-            result = (char**)realloc(result, sizeof(char*) * (j + 1));
-            if (result == NULL)
+            if (getstrlen(part) > 2) {
+                j++;
+                result = (char**)realloc(result, sizeof(char*) * j);
+                if (result == NULL)
+                    exit(-1);
+
+                *(part + i - lstsep) = '\0';
+                result[j - 1] = part;
+                lstsep = i + 1;
+                part = (char*)malloc(sizeof(char) * 2);
+                *(part + 1) = '\0';
+            }
+            lstsep = i + 1;
+        }
+
+        else {
+            part = (char*)realloc(part, sizeof(char) * (i - lstsep + 2));
+            if (part == NULL)
                 exit(-1);
 
-            result[j] = part;
-            part = (char*)malloc(sizeof(char) * 2);
-            j++;
-            i++;
-            lstsep = i;
+            *(part + i - lstsep) = *(string + i);
         }
-        part = (char*)realloc(part, sizeof(char) * (i - lstsep + 2));
-        if (part == NULL)
-            exit(-1);
-
-        *(part + i - lstsep) = *(string + i);
-        i++;
     }
-    *(part + i - lstsep) = '\0';
-    result = (char**)realloc(result, sizeof(char*) * (j + 1));
-    result[j] = part;
+
     j++;
-    part = (char*)malloc(sizeof(char));
-    *part = '\0';
-    result = (char**)realloc(result, sizeof(char*) * (j + 1));
+    result = (char**)realloc(result, sizeof(char*) * j);
     if (result == NULL)
         exit(-1);
 
-    result[j] = part;
+    *(part + i - lstsep) = '\0';
+    result[j - 1] = part;
+    j++;
+    part = (char*)malloc(sizeof(char));
+    *part = '\0';
+
+    result = (char**)realloc(result, sizeof(char*) * j);
+    if (result == NULL)
+        exit(-1);
+
+    result[j - 1] = part;
+
     return result;
 }
 
-void printrvrs(char* string, char separator) {
-    char** stringarr = sprt(string, separator);
-    for (int i = getstrarrlen(stringarr) - 1; i >= 0; i--) {
-        printstr(stringarr[i]);
-        free(stringarr[i]);
-    }
-    free(stringarr[getstrarrlen(stringarr)]);
-    free(stringarr);
+
+void printrvrs(char** stringarr) {
+    int stringarrlen;
+
+    stringarrlen = getstrarrlen(stringarr);
+
+    for (int i = stringarrlen - 1; i >= 0; i--)
+        printline(stringarr[i]);
+
+    freematrix(stringarr);
 }
 
 
+void swap(int* a, int* b) {
+    int tmp;
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+void swapstrs(char** a, char** b) {
+    char* tmp;
+    
+    tmp = *a;
+    *a = *b;
+    *b = tmp;
+}
+
+
+void sort(int* arr) {
+    for (int i = 1; i < *arr; i++) {
+        for (int j = 1; j < *arr - i; j++) {
+            if (*(arr + j) > *(arr + j + 1))
+                swap(arr + j, arr + j + 1);
+        }
+    }
+}
+
+
+void sortbylen(char** arr) {
+    int len;
+
+    len = getstrarrlen(arr);
+
+    for (int i = 0; i < len - 1; i++) {
+        for (int j = 0; j < len - i - 1; j++) {
+            if (getstrlen(*(arr + j)) > getstrlen(*(arr + j + 1)))
+                swapstrs(arr + j, arr + j + 1);
+ 
+        }
+    }
+}
+
+
+int comparestr(char* str1, char* str2) {
+
+    if (getstrlen(str1) != getstrlen(str2))
+        return 0;
+
+    for (int i = 0; i < getstrlen(str1); i++) {
+        if (*(str1 + i) != *(str2 + i))
+            return 0;
+    }
+
+    return 1;
+}

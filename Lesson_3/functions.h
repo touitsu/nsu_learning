@@ -19,6 +19,10 @@ void printline(char* string);
 
 void printarr(int* arr);
 
+void printstrarr(char** strarr);
+
+void freematrix(char** stringarr);
+
 int countmaxspecconrepeats(char* string, char repeat);
 
 int countmaxconrepeats(char* string);
@@ -37,6 +41,16 @@ int* sumarr(int* arr, int* arr1);
 
 char** sprt(char* string, char separator);
 
-void printrvrs(char* string, char separator);
+void printrvrs(char** stringarr);
+
+void swap(int* a, int* b);
+
+void swapstrs(char* a, char* b);
+
+void* sort(int* arr);
+
+void sortbylen(char** arr);
+
+int comparestr(char* str1, char* str2);
 
 #endif // FUNCTIONS_H_INCLUDED

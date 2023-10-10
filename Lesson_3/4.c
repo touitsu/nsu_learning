@@ -5,10 +5,16 @@
 
 
 int main() {
-    char* str = getinput();
-    int* res = cntamunqchrs(str);
+    char* str;
+    int* res;
+
+    str = getinput();
+    res = cntamunqchrs(str);
+
     printf("%c", findinarr(res, 3) + ' ' - 1);
+
     free(str);
     free(res);
+
     return 0;
 }
