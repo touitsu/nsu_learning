@@ -13,7 +13,8 @@ int main() {
 
     res = 1;
 
-    if (cntunqchrs(str, ' ', '/') || cntunqchrs(str, ':', '@') || cntunqchrs(str, '[', '^') || cntunqchrs(str, '`', '`') || cntunqchrs(str, '{', '~'))
+    if (cntunqchrs(str, ' ', '/') || cntunqchrs(str, ':', '@') || 
+        cntunqchrs(str, '[', '^') || cntunqchrs(str, '`', '`') || cntunqchrs(str, '{', '~'))
         res = 0;
 
     if (*str >= '0' && *str <= '9')
@@ -21,10 +22,9 @@ int main() {
 
     keywords = pythonkeywords();
 
-    for (int i = 0; i < 33; i++) {
+    for (int i = 0; i < 33; i++)
         if (comparestr(str, keywords[i]))
             res = 0;
-    }
 
     if (res)
         printf("Can be used.");

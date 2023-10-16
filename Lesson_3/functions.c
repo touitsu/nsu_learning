@@ -149,7 +149,6 @@ int countmaxconrepeats(char* string) {
             curres ++;
 
         else {
-
             res = maximum(curres,res);
             curres = 1;
             lastc = *(string + i);
