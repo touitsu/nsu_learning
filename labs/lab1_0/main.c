@@ -31,8 +31,6 @@ string getinput() {
 		c = getchar();
 	}
 
-	
-
 	return str;
 }
 
@@ -47,6 +45,7 @@ void printstr(string str) {
 
 
 void badinput() {
+
 	printf("bad input");
 	exit(0);
 }
@@ -87,6 +86,7 @@ uint16_t findleastbigger(string str, uint16_t idx) {
 			min = i;
 
 	}
+
 	return min;
 }
 
@@ -105,11 +105,9 @@ void swap(string str, uint16_t idx1, uint16_t idx2) {
 				tmp1 = *(str.content + i);
 				*(str.content + i) = *(str.content + j);
 				*(str.content + j) = tmp1;
-
 			}
 		}
 	}
-
 }
 
 
@@ -123,9 +121,7 @@ void combinations(string str, uint16_t n) {
 		swap(str, breakidx, findleastbigger(str, breakidx));
 
 		printstr(str);
-		
 	}
-
 }
 
 
