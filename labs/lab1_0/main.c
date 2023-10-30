@@ -2,167 +2,144 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 typedef struct string {
-	char* content;
-	uint16_t len;
+    char* content;
+    uint16_t len;
 }string;
 
 
-string getinput() {
-	string str;
-	char c;
+string getinput(FILE* file) {
+    string res;
 
-	str.content = (char*)malloc(sizeof(char) * 2);
-	str.len = 0;
+    res.content = (char*)malloc(sizeof(char) * 2);
+    if (res.content == NULL)
+        exit(1);
 
-	c = getchar();
-	while (c == '\n')
-		c = getchar();
+    res.len = 0;
 
-	for (uint16_t i = 0; c != '\n'; i++) {
-		str.content = (char*)realloc(str.content, sizeof(char) * (i + 2));
-		if (str.content == NULL)
-			exit(-1);
+    for (int16_t i = 0, c = (int16_t)fgetc(file); (char)c != '\n' && c != -1; i++, c = fgetc(file)) {
+        res.content = (char*)realloc(res.content, sizeof(char) * (i + 2));
+        if (res.content == NULL)
+            exit(1);
 
-		*(str.content + i) = c;
-		str.len = i + 1;
+        *(res.content + i) = (char)c;
+        *(res.content + i + 1) = '\0';
+        res.len = i;
+    }
 
-		c = getchar();
-	}
-
-	return str;
+    return res;
 }
 
 
-void printstr(string str) {
+string getpart(FILE* file, string str, uint16_t step) {
+    int16_t c;
 
-	for (uint16_t i = 0; i < str.len; i++)
-		printf("%c", *(str.content + i));
+    for (int16_t i = step; i < str.len + 1; i++)
+        *(str.content + i  - step) = *(str.content + i);
 
-	printf("\n");
+    for (int16_t i = str.len - step + 1; i <= str.len && c != -1; i++) {
+        c = fgetc(file);
+        if (c != -1)
+            *(str.content + i) = (char)c;
+
+        else
+            *(str.content) = '\0';
+    }
+
+    return str;
 }
 
 
-void badinput() {
+void boyer_moore(FILE* file, string tofind, string part) {
+    uint64_t curpos;
+    uint16_t* indexes;
+    int16_t i;
+    uint8_t flag;
 
-	printf("bad input");
-	exit(0);
+    indexes = (uint16_t*)malloc(sizeof(uint16_t) * 128);
+    if (indexes == NULL)
+        exit(1);
+
+    for (i = 0; i < 128; i++)
+        *(indexes + i) = 0;
+
+    for (i = (int16_t)tofind.len - 1; i >= 0; i--)
+        if(*(indexes + *(tofind.content + i)) == 0)
+            *(indexes + *(tofind.content + i)) = (int16_t) tofind.len - i;
+
+    part.content = (char*)malloc(sizeof(char) * (tofind.len + 1));
+    if (part.content == NULL)
+        exit(1);
+
+    *(part.content + tofind.len) = '\0';
+    part.len = tofind.len;
+    part = getpart(file, part, tofind.len + 1);
+
+    curpos = tofind.len + 1;
+    flag = 0;
+    i = tofind.len;
+
+    if (*part.content == '\0')
+        flag = 1;
+
+    while (!flag) {
+
+        printf("%llu ", curpos + (i - tofind.len));
+
+        if (*(part.content + i) != *(tofind.content + i)) {
+            if (*(indexes + *(part.content + i)) == 0 || i == 0) {
+
+                if (i == tofind.len || i == 0) {
+                    curpos += tofind.len  + 1;
+                    part = getpart(file, part, tofind.len  + 1);
+                    i = tofind.len;
+                }
+                else {
+                    curpos += tofind.len;
+                    part = getpart(file, part, tofind.len );
+                    i = tofind.len;
+                }
+            }
+
+            else {
+                curpos += *(indexes + *(part.content + i));
+                part = getpart(file, part, *(indexes + *(part.content + i)));
+                i = tofind.len;
+            }
+        }
+
+        else {
+            i--;
+
+            if (i == -1) {
+                curpos += tofind.len + 1;
+                i = tofind.len;
+                part = getpart(file, part, i + 1);
+            }
+        }
+
+        if (*part.content == '\0')
+            flag = 1;
+    }
+
+    free(part.content);
+    free(indexes);
 }
 
 
-uint16_t issorted(string str) {
+uint16_t main() {
+    string tofind, inp;
+    FILE* file;
 
-	for (uint16_t i = 0; i < str.len - 1; i++)
-		for (uint16_t j = i + 1; j < str.len; j++)
-			if (*(str.content + i) < *(str.content + j))
-				return 0;
+    file = fopen("in.txt", "r");
 
-	return 1;
-}
+    tofind = getinput(file);
 
+    boyer_moore(file, tofind, inp);
 
-uint16_t findbreaking(string str) {
+    fclose(file);
 
-	for (uint16_t i = str.len - 1; i > 1; i--)
-		if (*(str.content + i) > *(str.content + i - 1))
-			return i - 1;
-
-	return 0;
-}
-
-
-uint16_t findleastbigger(string str, uint16_t idx) {
-	uint16_t min;
-
-	min = idx;
-
-	for (uint16_t i = idx + 1; i < str.len; i++) {
-		if (min == idx)
-			if (*(str.content + min) < *(str.content + i))
-				min = i;
-
-		if (*(str.content + min) > *(str.content + i) && *(str.content + i) > *(str.content + idx))
-			min = i;
-
-	}
-
-	return min;
-}
-
-
-void swap(string str, uint16_t idx1, uint16_t idx2) {
-	char tmp1;
-
-	tmp1 = *(str.content + idx1);
-	*(str.content + idx1) = *(str.content + idx2);
-	*(str.content + idx2) = tmp1;
-
-	for (uint16_t i = idx1 + 1; i < str.len - 1; i++) {
-		for (uint16_t j = i + 1; j < str.len; j++) {
-			if (*(str.content + i) > *(str.content + j)) {
-
-				tmp1 = *(str.content + i);
-				*(str.content + i) = *(str.content + j);
-				*(str.content + j) = tmp1;
-			}
-		}
-	}
-}
-
-
-void combinations(string str, uint16_t n) {
-	uint16_t breakidx;
-
-	for (uint16_t i = 0; i < n && !issorted(str); i++) {
-
-		breakidx = findbreaking(str);
-
-		swap(str, breakidx, findleastbigger(str, breakidx));
-
-		printstr(str);
-	}
-}
-
-
-
-void isvalid(string str) {
-	uint16_t* counters;
-
-	counters = (uint16_t*)malloc(sizeof(uint16_t) * 10);
-
-	for (uint16_t i = 0; i < 10; i++)
-		*(counters + i) = 0;
-
-	for (uint16_t i = 0; i < str.len; i++) {
-		if (*(str.content + i) >= '0' && *(str.content + i) <= '9')
-			*(counters + *(str.content + i) - '0') += 1;
-
-		else 
-			badinput();
-	}
-
-	for (uint16_t i = 0; i < 10; i++)
-		if (*(counters + i) > 1)
-			badinput();
-	
-	free(counters);
-}
-
-
-int main() {
-	string inp;
-	uint16_t n;
-	
-	inp = getinput();
-
-	scanf_s("%hi", &n);
-
-	isvalid(inp);
-
-	combinations(inp, n);
-
-	free(inp.content);
+    free(tofind.content);
 
 	return 0;
 }
