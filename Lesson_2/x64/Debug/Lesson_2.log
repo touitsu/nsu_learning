@@ -1,3 +1,0 @@
-﻿  13.c
-C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\13.c(49,19): warning C4244: +=: преобразование "double" в "int", возможна потеря данных
-  Lesson_2.vcxproj -> C:\Users\Alex\Documents\nsu\nsu_learning\Lesson_2\x64\Debug\Lesson_2.exe
