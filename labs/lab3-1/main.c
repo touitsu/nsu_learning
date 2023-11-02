@@ -58,7 +58,7 @@ void sort(int32_t* array, uint32_t start, uint32_t end) {
 }
 
 
-int16_t main() {
+int32_t main() {
     uint32_t ammount;
     int32_t* array;
 
