@@ -17,7 +17,7 @@ string getinput(FILE* file) {
 
     res.len = 0;
 
-    for (int16_t i = 0, c = (int16_t)fgetc(file); (char)c != '\n' && c != -1; i++, c = fgetc(file)) {
+    for (int16_t i = 0, c = fgetc(file); c != '\n' && c != -1; i++, c = fgetc(file)) {
         res.content = (char*)realloc(res.content, sizeof(char) * (i + 2));
         if (res.content == NULL)
             exit(1);
@@ -86,7 +86,7 @@ void boyer_moore(FILE* file, string tofind, string part) {
 
         printf("%llu ", curpos + (i - tofind.len));
 
-        if (*(part.content + i) != *(tofind.content + i)) {
+        if (*(part.content + i) != *(tofind.content + i))
             if (*(indexes + *(part.content + i)) == 0 || i == 0) {
 
                 if (i == tofind.len || i == 0) {
@@ -106,7 +106,6 @@ void boyer_moore(FILE* file, string tofind, string part) {
                 part = getpart(file, part, *(indexes + *(part.content + i)));
                 i = tofind.len;
             }
-        }
 
         else {
             i--;
