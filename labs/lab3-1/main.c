@@ -22,9 +22,9 @@ void swap(int32_t* array, uint32_t a, uint32_t b) {
 
 
 uint32_t partition(int32_t* array, uint32_t start, uint32_t end) {
-    double pivot;
+    int32_t pivot;
 
-    pivot = (*(array + start) + *(array + end)) / 2.0;
+    pivot = *(array + (start + end)/2);
 
     uint32_t i,j;
 
@@ -59,23 +59,23 @@ void sort(int32_t* array, uint32_t start, uint32_t end) {
 
 
 int32_t main() {
-    uint32_t ammount;
+    uint32_t amount;
     int32_t* array;
 
-    scanf("%u", &ammount);
-    if (ammount == 0)
+    scanf_s("%u", &amount);
+    if (amount == 0)
         return 0;
 
-    array = (int32_t*)malloc(sizeof(int32_t) * ammount);
+    array = (int32_t*)malloc(sizeof(int32_t) * amount);
     if (!array)
         return 1;
 
-    for (uint32_t i = 0; i < ammount; i++)
-        scanf("%i", array+i);
+    for (uint32_t i = 0; i < amount; i++)
+        scanf_s("%i", array+i);
 
-    sort(array, 0, ammount - 1);
+    sort(array, 0, amount - 1);
 
-    printarr(array, ammount);
+    printarr(array, amount);
 
     free(array);
     return 0;
