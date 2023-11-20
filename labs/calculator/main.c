@@ -227,8 +227,10 @@ int32_t calculate(string inp) {
             num1 = pop(top);
             if (inp.content[i] == '-')
                 push(top, num1 - num2);
+
             else if (inp.content[i] == '+')
                 push(top, num1 + num2);
+
             else if (inp.content[i] == '/') {
                 if (num2 == 0) {
                     printf("Division by zero\n");
