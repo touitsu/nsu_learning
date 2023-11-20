@@ -10,11 +10,10 @@ typedef struct string{
 }string;
 
 
-struct stack{
+typedef struct stack{
     int32_t value;
     struct stack* next;
-};
-typedef struct stack stack;
+}stack;
 
 
 void push(stack** top, int32_t data) {
@@ -47,6 +46,7 @@ void freestack(stack** top) {
     while(*top != NULL)
         pop(top);
 
+    free(top);
 }
 
 
@@ -249,7 +249,7 @@ int32_t calculate(string inp) {
 }
 
 
-int main() {
+int32_t main() {
     string inp;
 
     inp = getinp();
