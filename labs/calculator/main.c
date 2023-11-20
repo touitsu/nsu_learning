@@ -39,6 +39,7 @@ int32_t pop(stack** top) {
     free(toremove);
 
     return value;
+
 }
 
 
@@ -56,8 +57,28 @@ int16_t getp(char operation) {
         case '*': return 2;
         case '/': return 2;
         case '(': return 0;
-        default: return -1;
+        case '0': return -1;
+        case '1': return -1;
+        case '2': return -1;
+        case '3': return -1;
+        case '4': return -1;
+        case '5': return -1;
+        case '6': return -1;
+        case '7': return -1;
+        case '8': return -1;
+        case '9': return -1;
+        case '\n': return -1;
+        case ')': return -1;
+        default: return -2;
     }
+}
+
+
+void syntaxerror(stack** top, string str) {
+    printf("Syntax error\n");
+    freestack(top);
+    free(str.content);
+    exit(0);
 }
 
 
@@ -73,38 +94,57 @@ string getinp() {
     string str;
     stack** top;
     char c;
-    int32_t value;
+    int32_t value, lastisoperation, numcount, opcount;
 
     top = (stack**)malloc(sizeof(stack*));
     *top = NULL;
     str.content = (char*)malloc(sizeof(char) * (2));
     str.len = 0;
     c = ' ';
+    lastisoperation = 0;
+    numcount = 0;
+    opcount = 0;
 
     while(c != '\n') {
         c = getchar();
 
         while (c >= '0' && c <= '9') {
+            lastisoperation = 0;
             str = concat(str, c);
             c = getchar();
             if (!(c >= '0' && c <= '9')) {
                 str = concat(str, ' ');
+                numcount++;
             }
         }
 
         if (c == ')') {
+            if (lastisoperation || *top == NULL)
+                syntaxerror(top, str);
+
             value = pop(top);
             while (value != '(') {
+                if (*top == NULL)
+                    syntaxerror(top, str);
+
                 str = concat(str, value);
                 str = concat(str, ' ');
                 value = pop(top);
             }
         }
 
-        if (c == '(')
+        if (c == '(') {
+            lastisoperation = 1;
             push(top, c);
+        }
 
-        if (getp(c) != -1 && c != '(') {
+        if (getp(c) > -1 && c != '(') {
+            if (lastisoperation)
+                syntaxerror(top, str);
+
+            lastisoperation = 1;
+            opcount++;
+
             if (*top != NULL) {
                 while (*top != NULL && getp(c) <= getp((*top)->value)) {
                     value = pop(top);
@@ -113,10 +153,19 @@ string getinp() {
                 }
                 push(top, c);
             }
+
             else
                 push(top, c);
+
         }
+
+        if(getp(c) == -2)
+            syntaxerror(top, str);
+
     }
+
+    if((opcount > 0 && numcount < 2) || str.len == 0)
+        syntaxerror(top, str);
 
     while(*top != NULL) {
         value = pop(top);
@@ -173,7 +222,7 @@ int32_t calculate(string inp) {
             push(top, getnum(inp, i));
             i = findinstr(inp, i, ' ');
         }
-        else if (getp(inp.content[i]) != -1){
+        else if (getp(inp.content[i]) > 0){
             num2 = pop(top);
             num1 = pop(top);
             if (inp.content[i] == '-')
@@ -190,6 +239,7 @@ int32_t calculate(string inp) {
             }
             else if (inp.content[i] == '*')
                 push(top, num1 * num2);
+
         }
     }
 
