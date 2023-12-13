@@ -13,6 +13,9 @@ int32_t main() {
 
 	fclose(file);
 
+	printf("Welcome to Dota 2 Akinator. This programm can guess any character from Dota 2.\n");
+	printf("Answer questions with yes or no.\n");
+
 	playgame(tree);
 
 	file = fopen("data.txt", "w");

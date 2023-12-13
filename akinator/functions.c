@@ -228,7 +228,7 @@ void playgame(Tree* tree) {
 	
 	if (!tree->left && !tree->right) {
 		printstr(tree->value);
-		printf("Is that a correct answer? (Yes/No)\n");
+		printf("Is that a correct answer?\n");
 
 		scanstring(ans);
 
