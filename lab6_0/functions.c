@@ -17,7 +17,7 @@ TREE* inittree(int32_t key) {
 }
 
 
-int32_t getheight(TREE* tr) {
+int8_t getheight(TREE* tr) {
 	if (tr == NULL)
 		return 0;
 
@@ -64,18 +64,15 @@ TREE* rightrot(TREE* tr) {
 
 
 TREE* balance(TREE* tr) {
-	int8_t tmp;
 	recalcheight(tr);
 
-	tmp = bf(tr);
-
-	if (tmp == 2) {
+	if (bf(tr) == 2) {
 		if (bf(tr->right) < 0)
 			tr->right = rightrot(tr->right);
 		
 		return leftrot(tr);
 	}
-	else if(tmp == -2) {
+	else if(bf(tr) == -2) {
 		if (bf(tr->left) > 0)
 			tr->left = leftrot(tr->left);
 

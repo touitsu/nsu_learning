@@ -19,7 +19,7 @@ typedef struct TREE {
 
 TREE* inittree(TREE* tr, int32_t key);
 
-int32_t getheight(TREE* tr);
+int8_t getheight(TREE* tr);
 
 int8_t bf(TREE* tr);
 
