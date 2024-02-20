@@ -31,6 +31,10 @@ TREE* balance(TREE* tr);
 
 TREE* insert(TREE* tr, int32_t key);
 
+void symgothrough(TREE* tr);
+
+TREE* search(TREE* tr, int32_t key);
+
 void freetree(TREE* tr);
 
 #endif

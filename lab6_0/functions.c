@@ -97,6 +97,29 @@ TREE* insert(TREE* tr, int32_t key) {
 }
 
 
+void symgothrough(TREE* tr) {
+	if (tr) {
+		symgothrough(tr->left);
+		printf("%d ", tr->key);
+		symgothrough(tr->right);
+	}
+}
+
+
+TREE* search(TREE* tr, int32_t key) {
+	if (tr) {
+		if (tr->key == key)
+			return tr;
+
+		if (key < tr->key)
+			return search(tr->left, key);
+
+		else
+			return search(tr->right, key);
+	}
+}
+
+
 void freetree(TREE* tr) {
 	if (tr) {
 		freetree(tr->right);
