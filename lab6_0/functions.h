@@ -11,7 +11,6 @@
 
 typedef struct TREE {
 	int32_t key;
-	int16_t height;
 	struct TREE* left;
 	struct TREE* right;
 }TREE;
