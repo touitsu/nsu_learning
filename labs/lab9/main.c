@@ -5,12 +5,20 @@
 #include "functions.h"
 
 
-void dijkstra(int32_t n, int32_t cur, int64_t* minplens, int32_t* matrix, int8_t* visited, int32_t* previous) {
+void dijkstra(int32_t n, int32_t cur, int32_t* minplens, int32_t* matrix, int8_t* visited, int32_t* previous, int8_t* ovflcnt) {
 	int32_t curmin, curminidx;
 
 	for (int32_t i = 0; i < n; i++) {
-		if (*(matrix + cur * n + i) != -1) {
-			if (*(matrix + cur * n + i) + *(minplens + cur) < *(minplens + i)) {
+		if (*(matrix + cur * n + i) != -1 && *(visited + i) == 0) {
+			//printf("%lld\n", *(matrix + cur * n + i) + *(minplens + cur));
+			//printf("%d\n", (int64_t)(*(matrix + cur * n + i) + (int64_t)(*(minplens + cur))) < (int64_t)(*(minplens + i)));
+			if ((int64_t)(*(matrix + cur * n + i)) + (int64_t)(*(minplens + cur)) > INT32_MAX && (*(minplens + i) == -1 || *(minplens + i) == INT32_MIN)) {
+				*(minplens + i) = INT32_MIN;
+				*(ovflcnt) = *(ovflcnt) + 1;
+				*(previous + i) = cur;
+			}
+			
+			else if ((int64_t)(*(matrix + cur * n + i) + (int64_t)(*(minplens + cur))) < (int64_t)(*(minplens + i)) || ((*(minplens + i) == INT32_MIN || *(minplens + i) == -1) && (int64_t)(*(matrix + cur * n + i)) + (int64_t)(*(minplens + cur)) <= INT32_MAX)) {
 				*(minplens + i) = *(matrix + cur * n + i) + *(minplens + cur);
 				*(previous + i) = cur;
 			}
@@ -23,22 +31,38 @@ void dijkstra(int32_t n, int32_t cur, int64_t* minplens, int32_t* matrix, int8_t
 
 	for (int32_t i = 0; i < n; i++) {
 		if (*(visited + i) == 0) {
-			if (*(minplens + i) <= curmin) {
-				curmin = *(minplens + i);
+			if (*(minplens + i) + INT32_MAX < curmin && *(minplens + i) != -1) {
+				curmin = *(minplens + i) + INT32_MAX;
 				curminidx = i;
 			}
 		}
 	}
 
 	if (curminidx != INT32_MAX)
-		dijkstra(n, curminidx, minplens, matrix, visited, previous);
+		dijkstra(n, curminidx, minplens, matrix, visited, previous, ovflcnt);
+}
+
+
+int32_t shrtpth(int32_t n, int32_t f, int32_t s, int32_t* previous, int32_t* matrix) {
+	int32_t i, res;
+
+	i = f-1;
+	res = 0;
+
+	while (i != s-1) {
+		if ((int64_t)res + (int64_t)(*(matrix + i * n + *(previous + i))) > INT32_MAX)
+			return INT32_MIN;
+		res += *(matrix + i * n + *(previous + i));
+		i = *(previous + i);
+	}
 }
 
 
 int32_t main() {
-	int32_t n, s, f, m, a, b, overflowcntr;
+	int32_t n, s, f, m, a, b;
+	int8_t ovflcnt;
 	int32_t* matrix;
-	int64_t* minplens;
+	int32_t* minplens;
 	int32_t* previous;
 	int8_t* visited;
 	int64_t tmp;
@@ -80,10 +104,10 @@ int32_t main() {
 		*(matrix + (b - 1) * n + (a - 1)) = tmp;
 	}
 
-	minplens = (int64_t*)malloc(sizeof(int64_t) * n);
+	minplens = (int32_t*)malloc(sizeof(int32_t) * n);
 	
 	for (int32_t i = 0; i < n; i++)
-		*(minplens + i) = INT64_MAX;
+		*(minplens + i) = -1;
 
 	*(minplens + s - 1) = 0;
 
@@ -95,17 +119,17 @@ int32_t main() {
 	previous = (int32_t*)malloc(sizeof(int32_t) * n);
 
 	for (int32_t i = 0; i < n; i++)
-		*(previous + i) = -1;
-	
-	dijkstra(n, s - 1, minplens, matrix, visited, previous);
+		*(previous + i) = i;
 
-	overflowcntr = 0;
+	ovflcnt = 0;
+	
+	dijkstra(n, s - 1, minplens, matrix, visited, previous, &ovflcnt);
+
 
 	for (int32_t i = 0; i < n; i++) {
-		if (*(minplens + i) == INT64_MAX)
+		if (*(minplens + i) == -1)
 			printf("oo ");
-		else if (*(minplens + i) > INT32_MAX) {
-			overflowcntr++;
+		else if (*(minplens + i) == INT32_MIN) {
 			printf("INT_MAX+ ");
 		}
 		else
@@ -114,9 +138,9 @@ int32_t main() {
 
 	printf("\n");
 
-	if (*(minplens + f - 1) == INT64_MAX)
+	if (*(minplens + f - 1) == -1)
 		printf("no path");
-	else if (*(minplens + f - 1) > INT32_MAX && overflowcntr > 1)
+	else if (ovflcnt > 1 && (int64_t)(*(matrix + s*n + f)) && shrtpth(n, f, s, previous, matrix) == INT32_MIN)
 		printf("overflow");
 	else {
 		printf("%d ", f);
