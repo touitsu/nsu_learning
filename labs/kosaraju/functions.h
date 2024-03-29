@@ -8,12 +8,6 @@
 #ifndef FUNCTIONS_H
 #define FUNCTIONS_H
 
-typedef struct vertex {
-	int32_t from;
-	int32_t to;
-}vertex;
-
-
 uint32_t sumarrnormalized(uint8_t* arr, int32_t n);
 
 void printarr(uint8_t* arr, int32_t n);
