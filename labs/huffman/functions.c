@@ -242,13 +242,16 @@ tree* huffmantree(tree** leafes, int32_t n) {
 		tr->fq = tmpqueue->val->fq + tmpqueue2->val->fq;
 		tr->right = tmpqueue->val;
 		tr->left = tmpqueue2->val;
+
 		if (tmpqueue2 == queue) {
 			free(tmpqueue);
 			free(tmpqueue2);
 			return tr;
 		}
+
 		free(tmpqueue);
 		free(tmpqueue2);
+
 		tmpqueue = initpq();
 		tmpqueue->val = tr;
 		insertpq(queue, tmpqueue);
@@ -477,7 +480,6 @@ kv* readkv(FILE* in, int32_t* leafescount) {
 		}
 		c = fgetc(in);
 
-		//reversestring(code);
 		(*(res + *leafescount)).key = key;
 		(*(res + *leafescount)).val = code;
 		(*leafescount)++;

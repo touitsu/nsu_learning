@@ -20,6 +20,7 @@ int32_t main(int32_t argc, char* argv[]) {
 
 	if (charcmp(*(argv + 1), "-e\0") || charcmp(*(argv + 1), "-d\0")) {
 		err = freopen_s(&in, *(argv + 2), "rb", stdin);
+
 		if (err != 0) {
 			printf("Error opening %s\n", *(argv + 2));
 			exit(0);
@@ -27,6 +28,7 @@ int32_t main(int32_t argc, char* argv[]) {
 
 		if (charcmp(*(argv + 1), "-e\0")) {
 			tmp = tobin(*(argv + 2));
+
 			if (_access(tmp, 0)) {
 
 				err = fopen_s(&kv, concat(*(argv + 2), "_out.bin"), "wb");
@@ -47,6 +49,7 @@ int32_t main(int32_t argc, char* argv[]) {
 				printf("Seems like file is already encoded\n");
 				exit(0);
 			}
+
 			free(tmp);
 		}
 		else {
@@ -75,6 +78,7 @@ int32_t main(int32_t argc, char* argv[]) {
 		}
 			
 	}
+
 	else {
 		printf("Specify flags, -e to encode, -d to decode\n");
 		exit(0);
