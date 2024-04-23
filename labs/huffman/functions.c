@@ -168,13 +168,14 @@ char* inttounicode(uint32_t n) {
 
 
 tree** getleafes(int32_t* n) {
-	int64_t* occurances;
 	int32_t unic, upperl;
 	char c;
+	int8_t added;
 	tree** leafes;
 	tree* tr;
 
-	occurances = (int64_t*)calloc(0xFFFF - 1, sizeof(int64_t));
+	upperl = 8;
+	leafes = (tree**)malloc(sizeof(tree*) * upperl);
 
 	c = fgetc(stdin);
 	unic = 0;
@@ -184,33 +185,34 @@ tree** getleafes(int32_t* n) {
 			c = fgetc(stdin);
 
 	while (c != EOF) {
+		added = 0;
 		unic = unicodetoint(c);
 
-		*(occurances + unic) += 1;
+		for (int32_t i = 0; !added; i++) {
+			if (i == (*n)) {
+				if ((*n) + 1 == upperl) {
+					upperl += 16;
+					leafes = (tree**)realloc(leafes, sizeof(tree*) * upperl);
+				}
+
+				tr = inittree();
+				tr->val = unic;
+				tr->fq = 1;
+				*(leafes + (*n)) = tr;
+				(*n)++;
+				added = 1;
+			}
+
+			else if ((*(leafes + i))->val == unic) {
+				(*(leafes + i))->fq += 1;
+				added = 1;
+			}
+		}
+
 		c = fgetc(stdin);
 	}
 
-	upperl = 8;
-	leafes = (tree**)malloc(sizeof(tree*) * upperl);
-
-	for (int32_t i = 0; i < 0xFFFF - 1; i++) {
-		if (*(occurances + i) != 0) {
-			if ((*n) + 1 == upperl) {
-				upperl += 16;
-				leafes = (tree**)realloc(leafes, sizeof(tree*) * upperl);
-			}
-
-			tr = inittree();
-			tr->val = i;
-			tr->fq = *(occurances + i);
-			*(leafes + (*n)) = tr;
-			(*n)++;
-		}
-	}
-
 	leafes = (tree**)realloc(leafes, sizeof(tree*) * (*n));
-
-	free(occurances);
 
 	return leafes;
 }
