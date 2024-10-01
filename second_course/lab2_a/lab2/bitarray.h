@@ -13,7 +13,7 @@ public:
 	BitArray();
 	~BitArray();
 
-	explicit BitArray(int32_t bitsNum, unsigned long value = 0);
+	explicit BitArray(int32_t bitsNum, uint32_t value = 0);
 	BitArray(const BitArray& b);
 
 	void swap(BitArray& b);
@@ -57,7 +57,33 @@ public:
 	bool empty() const;
 
 	std::string toString() const;
+
+	class Iterator : public std::iterator<std::input_iterator_tag, uint8_t, uint8_t, const uint8_t*, bool> {
+
+	private:
+		uint32_t index;
+		const BitArray* bits;
+
+	public:
+		explicit Iterator(const BitArray* bitArray, uint32_t index);
+
+		Iterator& operator++();
+
+		Iterator operator++(int32_t);
+
+		bool operator==(Iterator it) const;
+
+		bool operator!=(Iterator it) const;
+
+		reference operator*() const;
+	};
+
+	Iterator begin();
+
+	Iterator end();
+
 };
+
 
 bool operator==(const BitArray& a, const BitArray& b);
 bool operator!=(const BitArray& a, const BitArray& b);

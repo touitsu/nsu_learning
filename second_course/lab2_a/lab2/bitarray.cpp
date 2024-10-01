@@ -19,7 +19,7 @@ BitArray::~BitArray() {
 
 //constructor with arguments, recieves number of bits and value, then constructs a bit array with given length and value.
 //(int32_t)ceil((double)bitsNum / 8) - constraints given by the nature of my bit array. I allocate it by chunks of 8 bits (uint8_t), so first 8 bits are at this->bits[0].
-BitArray::BitArray(int32_t bitsNum, unsigned long value) {
+BitArray::BitArray(int32_t bitsNum, uint32_t value) {
 	(*this).bits = (uint8_t*)calloc((int32_t)ceil((double)bitsNum / 8), sizeof(uint8_t));
 	(*this).bitsNum = bitsNum;
 
@@ -87,6 +87,10 @@ BitArray& BitArray::operator=(const BitArray& b) {
 
 //Resizes bit array by creating allocating new memory and freeing previously allocated block and fills any new bits with value
 void BitArray::resize(int32_t bitsNum, bool value) {
+	if (bitsNum < 0) {
+		throw std::invalid_argument("Can not resize bit array to a negative size.");
+	}
+
 	if (bitsNum != (*this).bitsNum) {
 		uint8_t* newBits;
 
@@ -368,7 +372,7 @@ int32_t BitArray::count() const {
 //Returns a value of bit with index i.
 bool BitArray::operator[](int32_t i) const {
 	if (i >= (*this).bitsNum || i < 0) {
-		throw std::out_of_range("index is out of range.");
+		throw std::out_of_range("Index is out of range.");
 	}
 
 	return (bool)((*this).bits[(int32_t)ceil((double)(i + 1) / 8) - 1] & (1 << (i % 8)));
@@ -445,4 +449,62 @@ BitArray operator^(const BitArray& b1, const BitArray& b2) {
 	res ^= b2;
 
 	return res;
+}
+
+
+//Constructor for bit array iterator.
+BitArray::Iterator::Iterator(const BitArray* bitArray, uint32_t index) {
+	(*this).index = index;
+	(*this).bits = bitArray;
+}
+
+
+//Prefix unary increment for iterator.
+BitArray::Iterator& BitArray::Iterator::operator++() {
+	if (index < (*bits).size()) {
+		index++;
+		return (*this);
+	}
+	throw std::out_of_range("Iterator is out of range.");
+}
+
+
+//Postfix unary increment for iterator.
+BitArray::Iterator BitArray::Iterator::operator++(int32_t) {
+	if ((*this).index < (*bits).size()) {
+		Iterator res = *this;
+		++(*this);
+		return res;
+	}
+	throw std::out_of_range("Iterator is out of range.");
+}
+
+
+//Cheks if iterators are equal.
+bool BitArray::Iterator::operator==(Iterator it) const {
+	return ((*this).index == it.index && (*this).bits == it.bits);
+}
+
+
+//Cheks if iterators are not equal.
+bool BitArray::Iterator::operator!=(Iterator it) const {
+	return ((*this).index != it.index || (*this).bits != it.bits);
+}
+
+
+//Returns bit to which iterator points.
+BitArray::Iterator::reference BitArray::Iterator::operator*() const {
+	return (*(*this).bits)[(*this).index];
+}
+
+
+//Creates an iterator of bit array.
+BitArray::Iterator BitArray::begin() {
+	return Iterator(this, 0);
+}
+
+
+//Return an iterator at the end position, to check if iterator is at the end position.
+BitArray::Iterator BitArray::end() {
+	return Iterator(this, (uint32_t)(*this).bitsNum);
 }

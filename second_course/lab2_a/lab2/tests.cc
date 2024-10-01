@@ -76,6 +76,8 @@ TEST(BitArrayTest, BitArrayDeclarationTest) {
 TEST(BitArrayTest, BitArrayResizeTest) {
 	BitArray bitArray = BitArray(8, 255);
 
+	ASSERT_ANY_THROW(bitArray.resize(-1));
+
 	bitArray.resize(10, 1);
 	ASSERT_EQ(bitArray.size(), 10);
 	for (int32_t i = 0; i < bitArray.size(); i++) {

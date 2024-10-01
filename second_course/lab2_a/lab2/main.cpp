@@ -18,5 +18,13 @@ int32_t main() {
 	std::cout << bit2[0] << std::endl;
 	std::cout << bit2.toString() << std::endl;
 
+	for (auto iter = bit2.begin(); iter != bit2.end(); iter++) {
+		std::cout << *iter << std::endl;
+	}
+
+	for (auto bit : bit1) {
+		std::cout << bit;
+	}
+
 	return 0;
 }
