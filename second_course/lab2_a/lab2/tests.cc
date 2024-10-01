@@ -408,3 +408,21 @@ TEST(BitArrayTest, BitArrayExplicitBitwiseXorTest) {
 		ASSERT_EQ(bitArray[i], 0);
 	}
 }
+
+TEST(BitArrayIteratorTest, BitArrayIteratorTest) {
+	BitArray bitArray = BitArray(8, 255);
+	
+	for (auto iter = bitArray.begin(); iter != bitArray.end(); iter++) {
+		ASSERT_EQ(*iter, 1);
+	}
+
+	for (auto iter = bitArray.begin(); iter != bitArray.end(); ++iter) {
+		ASSERT_EQ(*iter, 1);
+	}
+
+	ASSERT_EQ(bitArray.begin() == bitArray.begin(), 1);
+	ASSERT_EQ(bitArray.begin() != bitArray.begin(), 0);
+
+	ASSERT_ANY_THROW(bitArray.end()++);
+	ASSERT_ANY_THROW(++bitArray.end());
+}
