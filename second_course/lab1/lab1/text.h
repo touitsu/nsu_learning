@@ -9,16 +9,16 @@ namespace textHandler {
 
 	class Words {
 		private:
-			std::map<std::string, unsigned> wordsMap;
+			std::multimap<unsigned, std::string, std::greater<unsigned>> wordsMap;
 			int wordsCnt;
 
 		public:
 
 			Words();
 
-			std::map<std::string, unsigned> getMap();
+			const std::multimap<unsigned, std::string, std::greater<unsigned>>& getMap() const;
 
-			int getWordsCnt();
+			const int& getWordsCnt() const;
 
 			void readFromFileBySeparators(std::string& filePath, std::string separators);
 
