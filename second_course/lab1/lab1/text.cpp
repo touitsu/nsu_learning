@@ -3,15 +3,15 @@
 namespace textHandler {
 
 	Words::Words() {
-		wordsMap = std::multimap<unsigned, std::string, std::greater<unsigned>>();
+		wordsMap = std::map<std::string, unsigned>();
 		wordsCnt = 0;
 	}
 
-	const std::multimap<unsigned, std::string, std::greater<unsigned>>& Words::getMap() const{
+	std::map<std::string, unsigned> Words::getMap() {
 		return this->wordsMap;
 	}
 
-	const int& Words::getWordsCnt() const{
+	int Words::getWordsCnt() {
 		return this->wordsCnt;
 	}
 
@@ -36,23 +36,17 @@ namespace textHandler {
 					}
 
 					else {
-						for (auto p = wordsMap.begin(); p != wordsMap.end(); p++) {
-							if (p->second == tmpStr) {
-								wordsMap.insert(std::make_pair(p->first + 1, p->second));
-								p = wordsMap.erase(p);
-								wordsCnt++;
-								tmpStr.clear();
-								if (p == wordsMap.end()) {
-									break;
-								}
-							}
+						if (wordsMap.find(tmpStr) != wordsMap.end()) {
+							wordsMap.find(tmpStr)->second++;
+							wordsCnt++;
 						}
 						
-						if (!tmpStr.empty()) {
-							wordsMap.insert(std::make_pair(1, tmpStr));
+						else if (!tmpStr.empty()) {
+							wordsMap[tmpStr] = 1;
 							wordsCnt++;
-							tmpStr.clear();
 						}
+
+						tmpStr.clear();
 					}
 				}
 			}
