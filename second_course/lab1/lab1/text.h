@@ -16,9 +16,9 @@ namespace textHandler {
 
 			Words();
 
-			std::map<std::string, unsigned> getMap();
+			const std::map<std::string, unsigned>& getMap() const;
 
-			int getWordsCnt();
+			const int& getWordsCnt() const;
 
 			void readFromFileBySeparators(std::string& filePath, std::string separators);
 

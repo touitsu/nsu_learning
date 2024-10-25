@@ -5,14 +5,14 @@ TEST(BitArrayTest, BitArrayConstructorTest) {
 	BitArray bitArray = BitArray();
 
 	ASSERT_EQ(bitArray.size(), 0);
-	ASSERT_ANY_THROW(bitArray[0]);
+	ASSERT_THROW(bitArray[0], std::out_of_range);
 }
 
 TEST(BitArrayTest, BitArrayDestructorTest) {
 	BitArray* bitArray = new BitArray(1, 1);
 
 	delete bitArray;
-	ASSERT_ANY_THROW((*bitArray)[0]);
+	ASSERT_THROW((*bitArray)[0], std::out_of_range);
 }
 
 TEST(BitArrayTest, BitArraySpecifiedConstructorTest) {
@@ -76,7 +76,7 @@ TEST(BitArrayTest, BitArrayDeclarationTest) {
 TEST(BitArrayTest, BitArrayResizeTest) {
 	BitArray bitArray = BitArray(8, 255);
 
-	ASSERT_ANY_THROW(bitArray.resize(-1));
+	ASSERT_THROW(bitArray.resize(-1), std::invalid_argument);
 
 	bitArray.resize(10, 1);
 	ASSERT_EQ(bitArray.size(), 10);
@@ -108,7 +108,7 @@ TEST(BitArrayTest, BitArrayClearTest) {
 	BitArray bitArray = BitArray(8, 255);
 
 	bitArray.clear();
-	ASSERT_ANY_THROW(bitArray[0]);
+	ASSERT_THROW(bitArray[0], std::out_of_range);
 }
 
 TEST(BitArrayTest, BitArrayPushTest) {
@@ -135,7 +135,7 @@ TEST(BitArrayTest, BitArrayBitwiseAndTest) {
 	BitArray bitArray = BitArray(8, 255);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray &= bitArray2);
+	ASSERT_THROW(bitArray &= bitArray2, std::range_error);
 
 	bitArray2 = BitArray(8, 0);
 
@@ -147,16 +147,16 @@ TEST(BitArrayTest, BitArrayBitwiseAndTest) {
 }
 
 TEST(BitArrayTest, BitArrayBitwiseOrTest) {
-	BitArray bitArray = BitArray(8, 255);
+	BitArray bitArray = BitArray(9, 511);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray |= bitArray2);
+	ASSERT_THROW(bitArray |= bitArray2, std::range_error);
 
-	bitArray2 = BitArray(8, 0);
+	bitArray2 = BitArray(9, 0);
 
 	bitArray |= bitArray2;
 
-	for (int32_t i = 0; i < 8; i++) {
+	for (int32_t i = 0; i < bitArray.size(); i++) {
 		ASSERT_EQ(bitArray[i], 1);
 	}
 }
@@ -165,7 +165,7 @@ TEST(BitArrayTest, BitArrayBitwiseXorTest) {
 	BitArray bitArray = BitArray(8, 255);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray ^= bitArray2);
+	ASSERT_THROW(bitArray ^= bitArray2, std::range_error);
 
 	bitArray2 = BitArray(8, 255);
 
@@ -285,7 +285,7 @@ TEST(BitArrayTest, BitArrayBitByIndexTest) {
 		ASSERT_EQ(bitArray[i], 0);
 	}
 
-	ASSERT_ANY_THROW(bitArray[10000000]);
+	ASSERT_THROW(bitArray[10000000], std::out_of_range);
 }
 
 TEST(BitArrayTest, BitArraySizeTest) {
@@ -368,7 +368,7 @@ TEST(BitArrayTest, BitArrayExplicitBitwiseAndTest) {
 	BitArray bitArray = BitArray(8, 255);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray &= bitArray2);
+	ASSERT_THROW(bitArray &= bitArray2, std::range_error);
 
 	bitArray2 = BitArray(8, 0);
 
@@ -383,7 +383,7 @@ TEST(BitArrayTest, BitArrayExplicitBitwiseOrTest) {
 	BitArray bitArray = BitArray(8, 255);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray |= bitArray2);
+	ASSERT_THROW(bitArray |= bitArray2, std::range_error);
 
 	bitArray2 = BitArray(8, 0);
 
@@ -398,7 +398,7 @@ TEST(BitArrayTest, BitArrayExplicitBitwiseXorTest) {
 	BitArray bitArray = BitArray(8, 255);
 	BitArray bitArray2 = BitArray(7, 0);
 
-	ASSERT_ANY_THROW(bitArray ^= bitArray2);
+	ASSERT_THROW(bitArray ^= bitArray2, std::range_error);
 
 	bitArray2 = BitArray(8, 255);
 
@@ -419,10 +419,58 @@ TEST(BitArrayIteratorTest, BitArrayIteratorTest) {
 	for (auto iter = bitArray.begin(); iter != bitArray.end(); ++iter) {
 		ASSERT_EQ(*iter, 1);
 	}
+}
 
-	ASSERT_EQ(bitArray.begin() == bitArray.begin(), 1);
-	ASSERT_EQ(bitArray.begin() != bitArray.begin(), 0);
+TEST(BitArrayIteratorTest, BitArrayIteratorEqualsTest) {
+	BitArray bitArray1 = BitArray(8, 255);
+	BitArray bitArray2 = BitArray(8, 0);
 
-	ASSERT_ANY_THROW(bitArray.end()++);
-	ASSERT_ANY_THROW(++bitArray.end());
+	ASSERT_EQ(bitArray1.begin() == bitArray1.begin(), 1);
+	ASSERT_EQ(bitArray1.begin() != bitArray1.begin(), 0);
+
+	ASSERT_EQ(bitArray1.begin() == bitArray2.begin(), 0);
+	ASSERT_EQ(bitArray1.begin() != bitArray2.begin(), 1);
+}
+
+TEST(BitArrayIteratorTest, BitArrayIteratorRangeExitTest) {
+	BitArray bitArray = BitArray(8, 255);
+
+	ASSERT_THROW(bitArray.end()++, std::out_of_range);
+	ASSERT_THROW(++bitArray.end(), std::out_of_range);
+}
+
+TEST(BitArrayProxyTest, BitArraySubscriptAssignmentTest) {
+	BitArray bitArray = BitArray(8, 255);
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		bitArray[i] = 0;
+	}
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		ASSERT_EQ(bitArray[i], 0);
+	}
+}
+
+TEST(BitArrayProxyTest, BitArraySubscriptEqualsTest) {
+	BitArray bitArray = BitArray(8, 255);
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		ASSERT_EQ(bitArray[i] == 1, 1);
+	}
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		ASSERT_EQ(bitArray[0] == bitArray[i], 1);
+	}
+}
+
+TEST(BitArrayProxyTest, BitArraySubscriptNotEqualsTest) {
+	BitArray bitArray = BitArray(8, 255);
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		ASSERT_EQ(bitArray[i] != 1, 0);
+	}
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		ASSERT_EQ(bitArray[0] != bitArray[i], 0);
+	}
 }

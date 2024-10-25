@@ -2,14 +2,12 @@
 
 namespace csvDumper {
 
-	std::pair<unsigned, std::string> flipPair(const std::pair<std::string, unsigned>& pairIn) {
-		return std::pair<unsigned, std::string>(pairIn.second, pairIn.first);
-	}
+	std::multimap<unsigned, const char*> flipMap(const std::map<std::string, unsigned>& mapIn) {
+		std::multimap<unsigned, const char*> result;
 
-	std::multimap<unsigned, std::string> flipMap(const std::map<std::string, unsigned>& mapIn) {
-		std::multimap<unsigned, std::string> result;
-
-		std::transform(mapIn.begin(), mapIn.end(), std::inserter(result, result.begin()), flipPair);
+		for (auto pair : mapIn) {
+			result.insert(std::pair<unsigned, const char*>(pair.second, mapIn.find(pair.first)->first.data()));
+		}
 
 		return result;
 
@@ -25,7 +23,7 @@ namespace csvDumper {
 			else {
 				out << "Content,Amount,Frequency Percentage\n";
 
-				std::multimap<unsigned, std::string> sortedWords = flipMap(words.getMap());
+				std::multimap<unsigned, const char*> sortedWords = flipMap(words.getMap());
 
 				for (auto iter = sortedWords.rbegin(); iter != sortedWords.rend(); iter++) {
 					out << iter->second << "," << iter->first << "," << (double)iter->first / words.getWordsCnt() * 100 << "%\n";

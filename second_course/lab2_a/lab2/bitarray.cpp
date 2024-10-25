@@ -323,6 +323,15 @@ BitArray& BitArray::reset() {
 }
 
 
+bool BitArray::get(int32_t i) const{
+	if (i >= (*this).bitsNum || i < 0) {
+		throw std::out_of_range("Index is out of range.");
+	}
+
+	return (bool)((*this).bits[(int32_t)ceil((double)(i + 1) / 8) - 1] & (1 << (i % 8)));
+}
+
+
 //Checks if there are any bit with value 1 in the bit array.
 bool BitArray::any() const {
 	for (int32_t i = 0; i < (int32_t)ceil((double)(*this).bitsNum / 8); i++) {
@@ -369,13 +378,22 @@ int32_t BitArray::count() const {
 };
 
 
-//Returns a value of bit with index i.
-bool BitArray::operator[](int32_t i) const {
+//Returns a value of bit with index i. 
+const bool BitArray::operator[](int32_t i) const {
 	if (i >= (*this).bitsNum || i < 0) {
 		throw std::out_of_range("Index is out of range.");
 	}
 
 	return (bool)((*this).bits[(int32_t)ceil((double)(i + 1) / 8) - 1] & (1 << (i % 8)));
+};
+
+
+BitArray::BitArrayProxy BitArray::operator[](int32_t i) {
+	if (i >= (*this).bitsNum || i < 0) {
+		throw std::out_of_range("Index is out of range.");
+	}
+
+	return BitArray::BitArrayProxy((*this).bits, i);
 }
 
 
@@ -410,7 +428,7 @@ bool operator==(const BitArray& a, const BitArray& b) {
 		return false;
 	}
 	for (int32_t i = 0; i < a.size(); i++) {
-		if (a[i] != b[i]) {
+		if (a.get(i) != b.get(i)) {
 			return false;
 		}
 	}
@@ -494,7 +512,7 @@ bool BitArray::Iterator::operator!=(Iterator it) const {
 
 //Returns bit to which iterator points.
 BitArray::Iterator::reference BitArray::Iterator::operator*() const {
-	return (*(*this).bits)[(*this).index];
+	return (*(*this).bits).get((*this).index);
 }
 
 
@@ -507,4 +525,30 @@ BitArray::Iterator BitArray::begin() {
 //Return an iterator at the end position, to check if iterator is at the end position.
 BitArray::Iterator BitArray::end() {
 	return Iterator(this, (uint32_t)(*this).bitsNum);
+}
+
+
+bool operator==(const BitArray::BitArrayProxy& a, const bool& b) {
+	if (a.bit() == b) {
+		return 1;
+	}
+	return 0;
+}
+
+
+bool operator!=(const BitArray::BitArrayProxy& a, const bool& b) {
+	return !(a == b);
+}
+
+
+bool operator==(const BitArray::BitArrayProxy& a, const BitArray::BitArrayProxy& b) {
+	if (a.bit() == b.bit()) {
+		return 1;
+	}
+	return 0;
+}
+
+
+bool operator!=(const BitArray::BitArrayProxy& a, const BitArray::BitArrayProxy& b) {
+	return !(a == b);
 }

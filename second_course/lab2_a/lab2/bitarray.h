@@ -5,6 +5,8 @@
 #include <cmath>
 
 class BitArray {
+
+
 private:
 	uint8_t* bits;
 	int32_t bitsNum;
@@ -43,6 +45,8 @@ public:
 
 	BitArray& reset();
 
+	bool get(int32_t i) const;
+
 	bool any() const;
 
 	bool none() const;
@@ -51,7 +55,46 @@ public:
 
 	int32_t count() const;
 
-	bool operator[](int32_t i) const;
+	const bool operator[](int32_t i) const;
+
+	class BitArrayProxy {
+
+	private:
+		uint8_t* bits;
+		int32_t index;
+
+	public:
+
+		BitArrayProxy(uint8_t* bits, int32_t index) {
+			(*this).bits = bits;
+			(*this).index = index;
+		}
+
+		bool operator=(bool val) {
+			if (val) {
+				if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == 0) {
+					(*this).bits[(*this).index / 8] |= (1 << ((*this).index % 8));
+				}
+			}
+			else {
+				if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == (1 << ((*this).index % 8))) {
+					(*this).bits[(*this).index / 8] ^= (1 << ((*this).index % 8));
+				}
+			}
+
+			return val;
+		}
+
+		bool bit() const{
+			return (*this).bits[(*this).index / 8] & (1 << ((*this).index % 8));
+		}
+
+		friend std::ostream& operator<< (std::ostream& outputStream, const BitArrayProxy& bitArrayProxy) {
+			return outputStream << (bool)(bitArrayProxy.bits[bitArrayProxy.index / 8] & (0x1 << (bitArrayProxy.index % 8)));
+		}
+	};
+
+	BitArrayProxy operator[](int32_t i);
 
 	int32_t size() const;
 	bool empty() const;
@@ -85,8 +128,15 @@ public:
 };
 
 
+
+
 bool operator==(const BitArray& a, const BitArray& b);
 bool operator!=(const BitArray& a, const BitArray& b);
+
+bool operator==(const BitArray::BitArrayProxy& a, const bool& b);
+bool operator!=(const BitArray::BitArrayProxy& a, const bool& b);
+bool operator==(const BitArray::BitArrayProxy& a, const BitArray::BitArrayProxy& b);
+bool operator!=(const BitArray::BitArrayProxy& a, const BitArray::BitArrayProxy& b);
 
 BitArray operator&(const BitArray& b1, const BitArray& b2);
 BitArray operator|(const BitArray& b1, const BitArray& b2);

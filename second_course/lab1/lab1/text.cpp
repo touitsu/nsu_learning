@@ -7,11 +7,11 @@ namespace textHandler {
 		wordsCnt = 0;
 	}
 
-	std::map<std::string, unsigned> Words::getMap() {
+	const std::map<std::string, unsigned>& Words::getMap() const {
 		return this->wordsMap;
 	}
 
-	int Words::getWordsCnt() {
+	const int& Words::getWordsCnt() const {
 		return this->wordsCnt;
 	}
 
