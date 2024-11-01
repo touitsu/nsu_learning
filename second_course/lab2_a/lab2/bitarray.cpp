@@ -528,6 +528,33 @@ BitArray::Iterator BitArray::end() {
 }
 
 
+BitArray::BitArrayProxy::BitArrayProxy(uint8_t* bits, int32_t index) {
+	(*this).bits = bits;
+	(*this).index = index;
+}
+
+
+bool BitArray::BitArrayProxy::operator=(bool val) {
+	if (val) {
+		if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == 0) {
+			(*this).bits[(*this).index / 8] |= (1 << ((*this).index % 8));
+		}
+	}
+	else {
+		if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == (1 << ((*this).index % 8))) {
+			(*this).bits[(*this).index / 8] ^= (1 << ((*this).index % 8));
+		}
+	}
+
+	return val;
+}
+
+
+bool BitArray::BitArrayProxy::bit() const {
+	return (*this).bits[(*this).index / 8] & (1 << ((*this).index % 8));
+}
+
+
 bool operator==(const BitArray::BitArrayProxy& a, const bool& b) {
 	if (a.bit() == b) {
 		return 1;

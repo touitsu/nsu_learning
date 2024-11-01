@@ -65,29 +65,11 @@ public:
 
 	public:
 
-		BitArrayProxy(uint8_t* bits, int32_t index) {
-			(*this).bits = bits;
-			(*this).index = index;
-		}
+		BitArrayProxy(uint8_t* bits, int32_t index);
 
-		bool operator=(bool val) {
-			if (val) {
-				if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == 0) {
-					(*this).bits[(*this).index / 8] |= (1 << ((*this).index % 8));
-				}
-			}
-			else {
-				if (((*this).bits[(*this).index / 8] & (1 << ((*this).index % 8))) == (1 << ((*this).index % 8))) {
-					(*this).bits[(*this).index / 8] ^= (1 << ((*this).index % 8));
-				}
-			}
+		bool operator=(bool val);
 
-			return val;
-		}
-
-		bool bit() const{
-			return (*this).bits[(*this).index / 8] & (1 << ((*this).index % 8));
-		}
+		bool bit() const;
 
 		friend std::ostream& operator<< (std::ostream& outputStream, const BitArrayProxy& bitArrayProxy) {
 			return outputStream << (bool)(bitArrayProxy.bits[bitArrayProxy.index / 8] & (0x1 << (bitArrayProxy.index % 8)));
@@ -126,9 +108,6 @@ public:
 	Iterator end();
 
 };
-
-
-
 
 bool operator==(const BitArray& a, const BitArray& b);
 bool operator!=(const BitArray& a, const BitArray& b);

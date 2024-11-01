@@ -451,6 +451,16 @@ TEST(BitArrayProxyTest, BitArraySubscriptAssignmentTest) {
 	}
 }
 
+TEST(BitArrayProxyTest, AutoTest) {
+	BitArray bitArray = BitArray(8, 255);
+
+	for (int32_t i = 0; i < bitArray.size(); i++) {
+		bitArray[i] = 0;
+	}
+
+	ASSERT_TRUE(bitArray.none());
+}
+
 TEST(BitArrayProxyTest, BitArraySubscriptEqualsTest) {
 	BitArray bitArray = BitArray(8, 255);
 

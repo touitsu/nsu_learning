@@ -4,50 +4,129 @@
 #include "game.h"
 
 int32_t main(int32_t argc, char* argv[]) {
-	gameOfLife::Game* game = new gameOfLife::Game(10, 10, std::string("3"), std::string("23"));
+	gameOfLife::Game* game;
 	gameOfLife::CommandHandler commandHandler;
-	std::string dumpPath;
+	
+	std::string returnString;
 	std::vector<bool> flags;
+	bool offline = false;
 	int32_t iterations;
 
-	flags.reserve(5);
-	flags = { 0, 0, 0, 0, 0 };
+	iterations = INT32_MIN;
+	flags.reserve(6);
+	flags = { 0, 0, 0, 0, 0, 0 };
 
-	//game->set(5, 4, 1);
-	//game->set(5, 5, 1);
-	//game->set(5, 6, 1);
-	//game->set(4, 5, 1);
-	//game->set(6, 6, 1);
+	if (argc == 1) {
+		game = new gameOfLife::Game(21, 21, std::string("3"), std::string("23"), std::string("name"));
 
-	game->set(5, 4, 1);
-	game->set(5, 5, 1);
-	game->set(5, 3, 1);
+		//game->set(5, 4, 1);
+		//game->set(5, 5, 1);
+		//game->set(5, 6, 1);
+		//game->set(4, 5, 1);
+		//game->set(6, 6, 1);
 
-	game->printMap();
+		game->set(6, 4, 1);
+		game->set(7, 4, 1);
+		game->set(8, 4, 1);
+		game->set(12, 4, 1);
+		game->set(13, 4, 1);
+		game->set(14, 4, 1);
+		game->set(4, 6, 1);
+		game->set(9, 6, 1);
+		game->set(11, 6, 1);
+		game->set(16, 6, 1);
+		game->set(4, 7, 1);
+		game->set(9, 7, 1);
+		game->set(11, 7, 1);
+		game->set(16, 7, 1);
+		game->set(4, 8, 1);
+		game->set(9, 8, 1);
+		game->set(11, 8, 1);
+		game->set(16, 8, 1);
+		game->set(6, 9, 1);
+		game->set(7, 9, 1);
+		game->set(8, 9, 1);
+		game->set(12, 9, 1);
+		game->set(13, 9, 1);
+		game->set(14, 9, 1);
+		game->set(6, 11, 1);
+		game->set(7, 11, 1);
+		game->set(8, 11, 1);
+		game->set(12, 11, 1);
+		game->set(13, 11, 1);
+		game->set(14, 11, 1);
+		game->set(4, 12, 1);
+		game->set(9, 12, 1);
+		game->set(11, 12, 1);
+		game->set(16, 12, 1);
+		game->set(4, 13, 1);
+		game->set(9, 13, 1);
+		game->set(11, 13, 1);
+		game->set(16, 13, 1);
+		game->set(4, 14, 1);
+		game->set(9, 14, 1);
+		game->set(11, 14, 1);
+		game->set(16, 14, 1);
+		game->set(6, 16, 1);
+		game->set(7, 16, 1);
+		game->set(8, 16, 1);
+		game->set(12, 16, 1);
+		game->set(13, 16, 1);
+		game->set(14, 16, 1);
 
-	while (!flags[2]) {
+		game->printMap();
+	}
+	else if (argc == 2) {
+		std::string tmp(argv[1]);
+		gameOfLife::Loader loader(tmp);
 
-		flags = { 0, 0, 0, 0, 0 };
+		loader.load(&game);
 
-		commandHandler.getAndHandleCommand(flags, iterations, dumpPath);
+		game->printMap();
+	}
+	else {
+		offline = true;
+		for (int32_t i = 0; i < argc; i++) {
+			if (std::string(argv[i]) == std::string("-i") && i != argc - 1) {
+				iterations = atoi(argv[i + 1]);
+			}
+		}
+		for (int32_t i = 0; i < argc; i++) {
+			if (std::string(argv[i]) == std::string("-o") && i != argc - 1) {
+				returnString = argv[i+1];
+			}
+		}
+		
+		if (iterations == INT32_MIN) {
+			throw std::exception("Invalid arguments.");
+		}
+
+		if (returnString.empty()) {
+			throw std::exception("Invalid arguments.");
+		}
+
+		std::string tmp(argv[1]);
+		gameOfLife::Loader loader(tmp);
+
+		loader.load(&game);
+	}
+
+	while (!flags[2] && !offline) {
+
+		flags = { 0, 0, 0, 0, 0, 0 };
+
+		commandHandler.getAndHandleCommand(flags, iterations, returnString);
 
 		system("cls");
 		game->printMap();
 
 		if (flags[0]) {
-			if (!dumpPath.empty()) {
-				gameOfLife::Dumper dumper(dumpPath);
-				try {
-					dumper.Dump(*game);
-					std::cout << "Game succesfully dumped.\n";
-				}
-				catch (std::exception& ex) {
-					std::cout << ex.what();
-				}
-				
+			gameOfLife::Dumper dumper(returnString);
+			try {
+				dumper.Dump(*game);
 			}
-			else {
-				std::cout << "Unavaliable file path.\n";
+			catch (std::exception& ex) {
+				std::cout << ex.what();
 			}
 		}
 		else if (flags[1]) {
@@ -56,19 +135,38 @@ int32_t main(int32_t argc, char* argv[]) {
 				game->iterate();
 			}
 			game->printMap();
+			std::cout << "Successfully iterated " << iterations << " times.\n";
 			iterations = 0;
+		}
+		else if (flags[2]) {
+			std::cout << "Exciting...\n";
 		}
 		else if (flags[3]) {
 			std::cout << "List of commands:\n";
 			std::cout << "1. dump <filename> - dumps your game at the current state to the <filename> (short version - d <filename>).\n";
 			std::cout << "2. tick <n=1> - iterates your game for given ammount of ticks (short version - t <n=1>).\n";
 			std::cout << "3. exit - exits the game safely (short version - e).\n";
-			std::cout << "4. help - gives you this list of commands (short version - h).\n";
+			std::cout << "4. name <yourname> - allows you to name your game (must follow regex for valid name)(short version - n).\n";
+			std::cout << "5. help - gives you this list of commands (short version - h).\n";
 		}
 		else if (flags[4]) {
 			std::cout << "Unavaliable command, consider using \"help\" command.\n";
 		}
+		else if (flags[5]) {
+			game->setName(returnString);
+			std::cout << "Renamed your game to " << returnString << "\n";
+		}
 	}
+
+	if (offline) {
+		for (int32_t i = 0; i < iterations; i++) {
+			game->iterate();
+		}
+		gameOfLife::Dumper dumper(returnString);
+		dumper.Dump(*game);
+	}
+
+	delete game;
 
 	return 0;
 }
