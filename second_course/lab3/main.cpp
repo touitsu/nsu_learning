@@ -8,18 +8,12 @@ int32_t main(int32_t argc, char* argv[]) {
 	gameOfLife::CommandHandler commandHandler;
 	
 	std::string returnString;
-	std::vector<bool> flags;
 	bool offline = false;
 	int32_t iterations;
 
 	iterations = INT32_MIN;
 
-	
-
 	gameOfLife::Operation operation = gameOfLife::Operation::help;
-
-	flags.reserve(6);
-	flags = { 0, 0, 0, 0, 0, 0 };
 
 	if (argc == 1) {
 		game = new gameOfLife::Game(21, 21, std::string("3"), std::string("23"), std::string("name"));
