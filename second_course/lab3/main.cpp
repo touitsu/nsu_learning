@@ -13,6 +13,11 @@ int32_t main(int32_t argc, char* argv[]) {
 	int32_t iterations;
 
 	iterations = INT32_MIN;
+
+	
+
+	gameOfLife::Operation operation = gameOfLife::Operation::help;
+
 	flags.reserve(6);
 	flags = { 0, 0, 0, 0, 0, 0 };
 
@@ -111,50 +116,58 @@ int32_t main(int32_t argc, char* argv[]) {
 		loader.load(&game);
 	}
 
-	while (!flags[2] && !offline) {
+	while (operation != gameOfLife::Operation::exit && !offline) {
 
-		flags = { 0, 0, 0, 0, 0, 0 };
-
-		commandHandler.getAndHandleCommand(flags, iterations, returnString);
+		commandHandler.getAndHandleCommand(operation, iterations, returnString);
 
 		system("cls");
 		game->printMap();
 
-		if (flags[0]) {
-			gameOfLife::Dumper dumper(returnString);
-			try {
-				dumper.Dump(*game);
+		switch (operation) {
+
+			case gameOfLife::Operation::dump: {
+				gameOfLife::Dumper dumper(returnString);
+				try {
+					dumper.Dump(*game);
+				}
+				catch (std::exception& ex) {
+					std::cout << ex.what();
+				}
+				break;
 			}
-			catch (std::exception& ex) {
-				std::cout << ex.what();
-			}
-		}
-		else if (flags[1]) {
-			system("cls");
-			for (int32_t i = 0; i < iterations; i++) {
-				game->iterate();
-			}
-			game->printMap();
-			std::cout << "Successfully iterated " << iterations << " times.\n";
-			iterations = 0;
-		}
-		else if (flags[2]) {
-			std::cout << "Exciting...\n";
-		}
-		else if (flags[3]) {
-			std::cout << "List of commands:\n";
-			std::cout << "1. dump <filename> - dumps your game at the current state to the <filename> (short version - d <filename>).\n";
-			std::cout << "2. tick <n=1> - iterates your game for given ammount of ticks (short version - t <n=1>).\n";
-			std::cout << "3. exit - exits the game safely (short version - e).\n";
-			std::cout << "4. name <yourname> - allows you to name your game (must follow regex for valid name)(short version - n).\n";
-			std::cout << "5. help - gives you this list of commands (short version - h).\n";
-		}
-		else if (flags[4]) {
-			std::cout << "Unavaliable command, consider using \"help\" command.\n";
-		}
-		else if (flags[5]) {
-			game->setName(returnString);
-			std::cout << "Renamed your game to " << returnString << "\n";
+
+			case gameOfLife::Operation::iterate:
+				system("cls");
+				for (int32_t i = 0; i < iterations; i++) {
+					game->iterate();
+				}
+				game->printMap();
+				std::cout << "Successfully iterated " << iterations << " times.\n";
+				iterations = 0;
+				break;
+
+			case gameOfLife::Operation::exit:
+				std::cout << "Exciting...\n";
+				break;
+
+			case gameOfLife::Operation::help:
+				std::cout << "List of commands:\n";
+				std::cout << "1. dump <filename> - dumps your game at the current state to the <filename> (short version - d <filename>).\n";
+				std::cout << "2. tick <n=1> - iterates your game for given ammount of ticks (short version - t <n=1>).\n";
+				std::cout << "3. exit - exits the game safely (short version - e).\n";
+				std::cout << "4. name <yourname> - allows you to name your game (must follow regex for valid name)(short version - n).\n";
+				std::cout << "5. help - gives you this list of commands (short version - h).\n";
+				break;
+
+			case gameOfLife::Operation::name:
+				game->setName(returnString);
+				std::cout << "Renamed your game to " << returnString << "\n";
+				break;
+
+			case gameOfLife::Operation::unknownCommand:
+				std::cout << "Unavaliable command, consider using \"help\" command.\n";
+				break;
+
 		}
 	}
 
