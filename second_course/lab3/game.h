@@ -14,9 +14,7 @@ namespace gameOfLife {
 
 		Map();
 
-		Map(const Map& map);
-
-		Map(int32_t x, int32_t y);
+		Map(int32_t size);
 
 		void set(int32_t x, int32_t y, int8_t val = 1);
 
@@ -37,7 +35,7 @@ namespace gameOfLife {
 		int32_t intBx;
 
 	public:
-		explicit Game(int32_t x, int32_t y, std::string& Bx, std::string& Sy, std::string& name);
+		explicit Game(int32_t size, std::string& Bx, std::string& Sy, std::string& name);
 
 		int8_t countNeighbours(int32_t x, int32_t y) const noexcept;
 
@@ -50,6 +48,8 @@ namespace gameOfLife {
 		void set(int32_t x, int32_t y, int8_t val = 1) noexcept;
 
 		const Map& getMap() const noexcept;
+
+		const Map& getNeighboursMap() const noexcept;
 
 		void printMap() const noexcept;
 

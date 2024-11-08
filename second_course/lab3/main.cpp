@@ -16,7 +16,7 @@ int32_t main(int32_t argc, char* argv[]) {
 	gameOfLife::Operation operation = gameOfLife::Operation::help;
 
 	if (argc == 1) {
-		game = new gameOfLife::Game(21, 21, std::string("3"), std::string("23"), std::string("name"));
+		game = new gameOfLife::Game(21, std::string("3"), std::string("23"), std::string("name"));
 
 		//game->set(5, 4, 1);
 		//game->set(5, 5, 1);

@@ -7,32 +7,29 @@ Map::Map() {
 	this->content[0].push_back(0);
 }
 
-Map::Map(const Map& map) {
-
-	this->content.reserve(map.getSize());
-
-	for (int32_t i = 0; i < map.getSize(); i++) {
-		this->content.push_back(std::vector<int8_t>());
-		this->content[i].reserve(map.getSize());
-		for (int32_t j = 0; j < map.getSize(); j++) {
-			this->content[i].push_back(map.get(j, i));
-		}
-	}
-}
-
-Map::Map(int32_t x, int32_t y) {
-	if (x > this->content.max_size()) {
+Map::Map(int32_t size) {
+	if (size >= this->content.max_size()) {
 		throw std::invalid_argument("Can't create a map of such size.");
 	}
 
-	this->content.reserve(x);
-	for (int32_t i = 0; i < y; i++) {
+	try {
+		this->content.reserve(size);
+	}
+	catch (std::bad_alloc) {
+		throw std::invalid_argument("Can't create a map of such size.");
+	}
+
+	for (int32_t i = 0; i < size; i++) {
 		this->content.push_back(std::vector<int8_t>());
-		if (y > this->content[i].max_size()) {
+
+		try {
+			this->content[i].reserve(size);
+		}
+		catch (std::bad_alloc) {
 			throw std::invalid_argument("Can't create a map of such size.");
 		}
-		this->content[i].reserve(y);
-		for (int32_t j = 0; j < x; j++) {
+
+		for (int32_t j = 0; j < size; j++) {
 			this->content[i].push_back(0);
 		}
 	}
@@ -57,16 +54,13 @@ const std::vector<std::vector<int8_t>>& Map::getContent() const noexcept {
 	return this->content;
 }
 
-Game::Game(int32_t x, int32_t y, std::string& Bx, std::string& Sy, std::string& name) {
-	if (x <= 0) {
-		throw std::invalid_argument("X must be positive and bigger than zero.");
-	}
-	if (y <= 0) {
-		throw std::invalid_argument("Y must be positive and bigger than zero.");
+Game::Game(int32_t size, std::string& Bx, std::string& Sy, std::string& name) {
+	if (size <= 0) {
+		throw std::invalid_argument("Size must be positive and bigger than zero.");
 	}
 
-	map = Map(x, y);
-	neighboursMap = Map(x, y);
+	map = Map(size);
+	neighboursMap = Map(size);
 
 	std::regex bxRegex("^[0-8]");
 	std::regex syRegex("^[0-8]{1,8}");
@@ -95,7 +89,7 @@ int8_t Game::countNeighbours(int32_t x, int32_t y) const noexcept {
 
 	for (int32_t i = x - 1; i <= x + 1; i++) {
 		for (int32_t j = y - 1; j <= y + 1; j++) {
-			res += this->map.get((this->map.getSize() + i) % this->map.getSize(), (this->map.getSize() + j) % this->map.getSize());
+			res += this->map.get(i % this->map.getSize(), j % this->map.getSize());
 		}
 	}
 
@@ -136,6 +130,10 @@ void Game::set(int32_t x, int32_t y, int8_t val) noexcept {
 
 const Map& Game::getMap() const noexcept {
 	return this->map;
+}
+
+const Map& Game::getNeighboursMap() const noexcept {
+	return this->neighboursMap;
 }
 
 void Game::printMap() const noexcept {
@@ -328,13 +326,11 @@ void Loader::load(Game** game) {
 		std::getline(file, line);
 
 		*game = new Game(std::max((maxX - minX + 1) * 2, (maxY - minY + 1) * 2) + 1,
-			std::max((maxX - minX + 1) * 2, (maxY - minY + 1) * 2) + 1,
 			line.substr(line.find("B") + 1, 1),
 			line.substr(line.find("S") + 1, line.length() - line.find("S") - 1), name);
 	}
 	else {
 		*game = new Game(std::max((maxX - minX + 1) * 2, (maxY - minY + 1) * 2) + 1,
-			std::max((maxX - minX + 1) * 2, (maxY - minY + 1) * 2) + 1,
 			std::string("3"), std::string("23"), name);
 	}
 
