@@ -16,7 +16,7 @@ int32_t main(int32_t argc, char* argv[]) {
 	gameOfLife::Operation operation = gameOfLife::Operation::help;
 
 	if (argc == 1) {
-		game = new gameOfLife::Game(21, std::string("3"), std::string("23"), std::string("name"));
+		game = new gameOfLife::Game(11, std::string("3"), std::string("23"), std::string("name"));
 
 		//game->set(5, 4, 1);
 		//game->set(5, 5, 1);
@@ -24,7 +24,7 @@ int32_t main(int32_t argc, char* argv[]) {
 		//game->set(4, 5, 1);
 		//game->set(6, 6, 1);
 
-		game->set(6, 4, 1);
+		/*game->set(6, 4, 1);
 		game->set(7, 4, 1);
 		game->set(8, 4, 1);
 		game->set(12, 4, 1);
@@ -71,7 +71,21 @@ int32_t main(int32_t argc, char* argv[]) {
 		game->set(8, 16, 1);
 		game->set(12, 16, 1);
 		game->set(13, 16, 1);
-		game->set(14, 16, 1);
+		game->set(14, 16, 1);*/
+
+		game->set(5, 5);
+		game->set(4, 5);
+		game->set(3, 5);
+		game->set(3, 4);
+		game->set(5, 4);
+		game->set(5, 3);
+		game->set(6, 3);
+		game->set(6, 5);
+		game->set(7, 5);
+		game->set(7, 6);
+		game->set(5, 6);
+		game->set(5, 7);
+		game->set(4, 7);
 
 		game->printMap();
 	}
