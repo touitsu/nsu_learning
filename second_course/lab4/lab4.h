@@ -12,6 +12,7 @@
 #include <map>
 
 #define BuffSize 32
+#define PI 3.1415926535
 
 namespace AudioProcessor {
 
@@ -93,12 +94,12 @@ namespace AudioProcessor {
 		
 	protected:
 		std::ifstream file;
-		std::string& path;
+		const std::string& path;
 		std::string readBuff;
 
 	public:
 
-		Stream(std::string& filePath) : path(filePath) {
+		Stream(const std::string& filePath) : path(filePath) {
 			std::ofstream tmp;
 			this->file.open(filePath, std::ios::binary);
 
@@ -154,7 +155,6 @@ namespace AudioProcessor {
 
 		void setPos(int32_t pos) {
 			file.seekg(pos, std::ios_base::beg);
-			std::cout << "new pos: " << file.tellg() << '\n';
 		}
 	};
 
@@ -263,6 +263,7 @@ namespace AudioProcessor {
 		const int32_t& getFrequency() const noexcept {
 			return this->frequency;
 		}
+
 	};
 
 	class Processor {
@@ -436,7 +437,8 @@ namespace AudioProcessor {
 				secondStreamArray = signedBytesToIntArray(bytes2, bytes);
 
 				for (size_t i = 0; i < bytes1.length() / bytes; i += 16) {
-					_mm256_storeu_epi16(resArray + i * 16, (_mm256_add_epi16(_mm256_div_epi16(_mm256_loadu_epi16(firstStreamArray + i * 16), _mm256_set1_epi16(2)), _mm256_div_epi16(_mm256_loadu_epi16(secondStreamArray + i * 16), _mm256_set1_epi16(2)))));
+					_mm256_storeu_epi16(resArray + i * 16, (_mm256_add_epi16(_mm256_div_epi16(_mm256_loadu_epi16(firstStreamArray + i * 16), _mm256_set1_epi16(2)), 
+																			 _mm256_div_epi16(_mm256_loadu_epi16(secondStreamArray + i * 16), _mm256_set1_epi16(2)))));
 				}
 
 				for (size_t i = 0; i < bytes1.length() / bytes; i++) {
@@ -512,7 +514,241 @@ namespace AudioProcessor {
 		}
 	};
 
+
+	class FrequencyProcessor : public virtual Processor {
+	private:
+		
+		struct complexNum {
+			float real;
+			float imaginary;
+
+
+			complexNum(float r = 0, float i = 0) {
+				this->real = r;
+				this->imaginary = i;
+			}
+
+
+			complexNum operator+(complexNum& b) {
+				complexNum res;
+
+				res.real = this->real + b.real;
+				res.imaginary = this->imaginary + b.imaginary;
+
+				return res;
+			}
+
+
+			complexNum operator-(complexNum& b) {
+				complexNum res;
+
+				res.real = this->real - b.real;
+				res.imaginary = this->imaginary - b.imaginary;
+
+				return res;
+			}
+
+
+			complexNum operator*(complexNum& b) {
+				complexNum res;
+
+				res.real = this->real * b.real - this->imaginary * b.imaginary;
+				res.imaginary = this->real * b.imaginary + b.real * this->imaginary;
+
+				return res;
+			}
+
+
+			void operator*=(float b) {
+				this->real = this->real * b;
+				this->imaginary = this->imaginary * b;
+			}
+
+		};
+
+
+		std::vector<complexNum> fft(std::vector<complexNum>& signal, bool invert) {
+			std::vector<complexNum> even, odd, evenRes, oddRes, res;
+			complexNum omega, omegan;
+
+			if (signal.size() == 1) {
+				return signal;
+			}
+
+			for (size_t i = 0; i < signal.size()/2; i++) {
+				even.push_back(signal[i * 2]);
+				odd.push_back(signal[i * 2 + 1]);
+			}
+
+			omega = complexNum(1.0f, 1.0f);
+			omegan = complexNum(cos(2 * PI / signal.size() * (invert ? -1 : 1)), sin(2 * PI / signal.size() * (invert ? -1 : 1)));
+
+			
+
+			evenRes = fft(even, invert);
+			oddRes = fft(odd, invert);
+			
+			res.reserve(signal.size());
+			for (size_t i = 0; i < signal.size(); i++) {
+				res.push_back(complexNum());
+			}
+			
+
+			for (size_t i = 0, k1 = 0, k2 = 0; i < signal.size() / 2; i++, k1++, k2++) {
+				res[i] = evenRes[k1] + omega * oddRes[k2];
+				res[i + signal.size() / 2] = evenRes[k1] - omega * oddRes[k2];
+				if (invert) {
+					res[i] *= 0.5f;
+					res[i + signal.size() / 2] *= 0.5f;
+				}
+				omega = omega * omegan;
+			}
+
+			return res;
+		}
+
+
+	public:
+		FrequencyProcessor(AudioStream& stream, std::string& path, int32_t startFrequency, int32_t endFrequnecy = -1) : Processor(stream, path, startFrequency, endFrequnecy) {
+		
+		}
+
+		void apply() override {
+			std::vector<complexNum> signal;
+			std::vector<complexNum> fftRes;
+			int16_t* bytes;
+
+			this->stream.setPos(this->stream.getBytesTillData() + 8);
+
+			for (size_t sec = 0; sec < 2; sec++) {
+				for (size_t i = 0; i < this->stream.getBytesPerSec() / BuffSize; i++) {
+					this->stream.read(BuffSize);
+
+					bytes = signedBytesToIntArray(stream.getReadBuff(), this->stream.getBitsPerSample() / 8);
+
+					for (size_t j = 0; j < BuffSize / (this->stream.getBitsPerSample() / 8); j++) {
+						signal.push_back(complexNum(static_cast<float>(*(bytes + j) & 0xFF), static_cast<float>(sec + (i * BuffSize + j) / this->stream.getBytesPerSec())));
+						signal.push_back(complexNum(static_cast<float>(*(bytes + j) >> 8), static_cast<float>(sec + (i * BuffSize + j + 1) / this->stream.getBytesPerSec())));
+					}
+				}
+				
+				_aligned_free(bytes);
+			}
+
+			std::cout << signal.size() << std::endl;
+
+			fftRes = fft(signal, 0);
+
+			signal = fft(fftRes, 1);
+
+			for (auto iter = signal.begin(); iter != signal.end(); iter++) {
+				std::cout << "Real: " << iter->real << " Imaginary: " << iter->imaginary << std::endl;
+			}
+		}
+	};
+
 	
+	class EchoProcessor : public virtual Processor{
+	private:
+
+		const std::string calculateMix(const std::string& bytes1, const std::string& bytes2) const noexcept {
+			std::string res;
+			int32_t tmp;
+			int32_t bytes;
+
+			bytes = this->stream.getBitsPerSample() / 8;
+
+			if (BuffSize % 16 == 0) {
+				int16_t* firstStreamArray;
+				int16_t* secondStreamArray;
+				int16_t* resArray;
+
+				resArray = static_cast<int16_t*>(_aligned_malloc(sizeof(int16_t) * BuffSize / bytes, sizeof(int16_t) * 8));
+
+				firstStreamArray = signedBytesToIntArray(bytes1, bytes);
+				secondStreamArray = signedBytesToIntArray(bytes2, bytes);
+
+				for (size_t i = 0; i < bytes1.length() / bytes; i += 16) {
+					_mm256_storeu_epi16(resArray + i * 16, (_mm256_add_epi16(_mm256_div_epi16(_mm256_loadu_epi16(firstStreamArray + i * 16), _mm256_set1_epi16(2)),
+						_mm256_div_epi16(_mm256_loadu_epi16(secondStreamArray + i * 16), _mm256_set1_epi16(2)))));
+				}
+
+				for (size_t i = 0; i < bytes1.length() / bytes; i++) {
+					res.push_back(static_cast<int8_t>(*(resArray + i) & 0xFF));
+					res.push_back(static_cast<int8_t>(*(resArray + i) >> 8));
+				}
+
+				_aligned_free(firstStreamArray);
+				_aligned_free(secondStreamArray);
+				_aligned_free(resArray);
+			}
+
+			else {
+				for (size_t i = 0; i < bytes1.length() / (this->stream.getBitsPerSample() / 8); i++) {
+					tmp = (signedBytesToInt(bytes1, bytes, i * bytes) + signedBytesToInt(bytes2, bytes, i * bytes)) / 2;
+					res.push_back(static_cast<int8_t>(tmp & 0xFF));
+					for (size_t j = 0; j < (this->stream.getBitsPerSample() / 8) - 1; j++) {
+						res.push_back(static_cast<int8_t>((tmp >> 8) & 0xFF));
+					}
+				}
+			}
+
+			return std::as_const(res);
+		}
+
+	public:
+		EchoProcessor(AudioStream& stream1, std::string& path, int32_t startPoint, int32_t endPoint = -1) : Processor(stream1, path, startPoint, endPoint) {
+
+		}
+
+		void apply() {
+			std::string tmp;
+
+			this->stream.setPos(this->stream.getBytesTillData() + 8);
+
+			if (this->end < this->start && this->end != -1) {
+				throw std::invalid_argument("Invalid end point, end point must be bigger than start point.\n");
+			}
+
+			if (this->end > this->stream.getDuration()) {
+				throw std::invalid_argument("Invalid end point, input file duration is smaller.\n");
+			}
+
+			dumpOriginal(this->start);
+
+
+			if (this->end == -1) {
+				for (size_t i = 0; i < this->stream.getDuration() - this->start; i++) {
+					for (size_t j = 0; j < this->stream.getBytesPerSec() / BuffSize; j++) {
+						this->stream.setPos(this->stream.getBytesTillData() + 8 + (i + this->start) * this->stream.getBytesPerSec() + j * BuffSize);
+						this->stream.read(BuffSize);
+						tmp = std::string(this->stream.getReadBuff());
+						this->stream.setPos(this->stream.getBytesTillData() + 8 + i * this->stream.getBytesPerSec() + j * BuffSize);
+						this->stream.read(BuffSize);
+
+						write(calculateMix(tmp, this->stream.getReadBuff()), BuffSize);
+					}
+				}
+			}
+			else {
+				for (size_t i = 0; i < this->end - this->start; i++) {
+					for (size_t j = 0; j < this->stream.getBytesPerSec() / BuffSize; j++) {
+						this->stream.setPos(this->stream.getBytesTillData() + 8 + (i + this->start) * this->stream.getBytesPerSec() + j * BuffSize);
+						this->stream.read(BuffSize);
+						tmp = std::string(this->stream.getReadBuff());
+						this->stream.setPos(this->stream.getBytesTillData() + 8 + i * this->stream.getBytesPerSec() + j * BuffSize);
+						this->stream.read(BuffSize);
+
+						write(calculateMix(tmp, this->stream.getReadBuff()), BuffSize);
+					}
+				}
+
+				dumpOriginal(this->stream.getDuration() - this->end);
+			}
+		}
+	};
+
+
 	class Factory {
 	public:
 		virtual std::unique_ptr<Processor> createProcessor(std::vector<std::shared_ptr<AudioStream>>& streams, std::string& outputPath, int32_t startPoint, int32_t endPoint) {
@@ -547,6 +783,26 @@ namespace AudioProcessor {
 	public:
 		std::unique_ptr<Processor> createProcessor(std::vector<std::shared_ptr<AudioStream>>& streams, std::string& outputPath, int32_t startPoint, int32_t endPoint) override {
 			std::unique_ptr<Processor> res(new MixProcessor(*streams[0].get(), *streams[1].get(), outputPath, startPoint, endPoint));
+
+			return res;
+		}
+	};
+
+
+	class FftFactory : public virtual Factory {
+	public:
+		std::unique_ptr<Processor> createProcessor(std::vector<std::shared_ptr<AudioStream>>& streams, std::string& outputPath, int32_t startPoint, int32_t endPoint) override {
+			std::unique_ptr<Processor> res(new FrequencyProcessor(*streams[0].get(), outputPath, startPoint, endPoint));
+
+			return res;
+		}
+	};
+
+
+	class EchoFactory : public virtual Factory {
+	public:
+		std::unique_ptr<Processor> createProcessor(std::vector<std::shared_ptr<AudioStream>>& streams, std::string& outputPath, int32_t startPoint, int32_t endPoint) override {
+			std::unique_ptr<Processor> res(new EchoProcessor(*streams[0].get(), outputPath, startPoint, endPoint));
 
 			return res;
 		}
@@ -591,10 +847,6 @@ namespace AudioProcessor {
 				}
 			}
 
-			res.vals = vals;
-			res.links = links;
-			res.commandName = line.substr(0, line.find(' '));
-
 			if (vals.size() < 1) {
 				throw std::invalid_argument((std::string("Not enough arguments provided in line: ") + std::to_string(lineIdx) + std::string("\n")).c_str());
 			}
@@ -610,6 +862,10 @@ namespace AudioProcessor {
 			if (vals.size() == 1) {
 				vals.push_back(-1);
 			}
+
+			res.vals = vals;
+			res.links = links;
+			res.commandName = line.substr(0, line.find(' '));
 
 			return res;
 		}
@@ -670,7 +926,9 @@ namespace AudioProcessor {
 
 			factories.insert(std::make_pair<std::string, Factory*>(std::string("mute"), new MuteFactory));
 			factories.insert(std::make_pair<std::string, Factory*>(std::string("mix"), new MixFactory));
+			//factories.insert(std::make_pair<std::string, Factory*>(std::string("fft"), new FftFactory));
 			factories.insert(std::make_pair<std::string, Factory*>(std::string("save"), new SaveFactory));
+			factories.insert(std::make_pair<std::string, Factory*>(std::string("echo"), new EchoFactory));
 			
 			keys = getMapKeys(factories);
 
