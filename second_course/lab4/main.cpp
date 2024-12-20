@@ -1,4 +1,4 @@
-﻿#include "lab4.h"
+﻿#include "AudioProcessor.h"
 
 using namespace AudioProcessor;
 
