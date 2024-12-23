@@ -1,16 +1,32 @@
-﻿#include <fstream>
+﻿#pragma once
+
+#include <fstream>
 #include <tuple>
 #include <sstream>
 #include <string>
 #include <vector>
 #include <iostream>
+#include "exception.h"
+
+struct Config {
+    char sepCol;
+    char sepRow;
+    char escapeChar;
+
+    Config(char sepCol = ',', char sepRow = '\n', char escapeChar = '"') {
+        this->sepCol = sepCol;
+        this->sepRow = sepRow;
+        this->escapeChar = escapeChar;
+    }
+};
+
 
 template <typename... args>
 class csvParser {
 private:
     std::ifstream& file;
     size_t linesToSkip;
-    char sep;
+    Config& config;
 
 public:
     class Iterator {
@@ -18,16 +34,23 @@ public:
         std::ifstream* file;
         size_t linesToSkip;
         size_t curLine;
-        char sep;
+        Config& config;
         std::tuple<args...> line;
 
 
         std::vector<std::string> splitLine(std::string str) {
             std::vector<std::string> res;
             std::string tmp;
+            bool escapeCharacterMet;
+
+            escapeCharacterMet = false;
 
             for (char c : str) {
-                if (c != sep) {
+
+                if (c == this->config.escapeChar) {
+                    escapeCharacterMet = !escapeCharacterMet;
+                }
+                else if (c != this->config.sepCol) {
                     tmp += c;
                 }
                 else {
@@ -36,7 +59,7 @@ public:
                 }
             }
 
-            res.push_back(str.substr(str.rfind(';') + 1, str.length()));
+            res.push_back(str.substr(str.rfind(this->config.sepCol) + 1, str.length()));
 
             return res;
         }
@@ -45,7 +68,9 @@ public:
         void readLine() {
             std::string tmp;
 
-            std::getline(*file, tmp);
+            for (char c = file->get(); c != this->config.sepRow && !file->eof(); c = file->get()) {
+                tmp += c;
+            }
 
             this->line = parseLine(tmp);
         }
@@ -55,7 +80,7 @@ public:
             std::vector<std::string> splittedLine = splitLine(line);
 
             if (splittedLine.size() != sizeof...(args)) {
-                throw std::runtime_error((std::string("Bad number of columns in line: ") + std::to_string(this->curLine)).c_str());
+                throw RuntimeException(std::string("csvParser::Iterator::parseLine"), std::string("Bad number of columns in line: ") + std::to_string(this->curLine));
             }
 
             return createTuple(splittedLine, std::index_sequence_for<args...>{});
@@ -78,7 +103,7 @@ public:
                     return std::string("");
                 }
                 else {
-                    throw std::runtime_error((std::string("Can not convert empty val to such type in line: ") + std::to_string(curLine)).c_str());
+                    throw InvalidArgumentException(std::stirng("csvParser::Iterator::firToType"), std::string("Can not convert empty val to such type in line: ") + std::to_string(curLine));
                 }
             }
             else {
@@ -91,7 +116,7 @@ public:
                     strStream >> value;
 
                     if (strStream.fail()) {
-                        throw std::runtime_error((std::string("Failed to convert to type in line: ") + std::to_string(curLine)).c_str());
+                        throw InvalidArgumentException(std::string("csvParser::Iterator::firToType"), std::string("Failed to convert to type in line: ") + std::to_string(curLine));
                     }
 
                     return value;
@@ -103,7 +128,9 @@ public:
 
     public:
 
-        Iterator(std::ifstream* file = nullptr, size_t linesToSkip = 0, char sep = ';') : file(file), linesToSkip(linesToSkip), sep(sep) {
+        Iterator(std::ifstream* file = nullptr, size_t linesToSkip = 0, Config& conf = Config()) : file(file), linesToSkip(linesToSkip), config(conf) {
+            this->curLine = linesToSkip;
+
             if (this->file) {
                 this->file->seekg(0, std::ios::beg);
 
@@ -118,9 +145,6 @@ public:
             else {
                this->file = nullptr;
             }
-            
-
-            this->curLine = linesToSkip;
         }
 
 
@@ -153,13 +177,13 @@ public:
     };
 
 
-    csvParser(std::ifstream& file, size_t linesToSkip = 0, char sep = ';') : file(file), linesToSkip(linesToSkip), sep(sep) {
+    csvParser(std::ifstream& file, size_t linesToSkip = 0, Config& conf = Config()) : file(file), linesToSkip(linesToSkip), config(conf) {
 
     }
 
 
     Iterator begin() {
-        return Iterator(&(this->file), this->linesToSkip, this->sep);
+        return Iterator(&(this->file), this->linesToSkip, this->config);
     }
 
 

@@ -1,4 +1,5 @@
 ﻿#include "AudioProcessor.h"
+#include "exception.h"
 
 using namespace AudioProcessor;
 
@@ -29,34 +30,33 @@ int main(int32_t argc, char** argv) {
 
 				if (std::string(argv[i]) == std::string("-c")) {
 					if (i + 1 >= argc) {
-						throw std::invalid_argument("Path to config isn't provided.\n");
+						throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Path to config isn't provided."));
 					}
 
 					configPath.assign(argv[i + 1]);
 
 					if (configPath.find(".txt") == std::string::npos) {
-						throw std::invalid_argument("Invalid path config path, must be a txt file.\n");
+						throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Invalid config path, must be a txt file."));
 					}
 
 					if (i + 2 >= argc) {
-						throw std::invalid_argument("Path to save isn't provided.\n");
+						throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Path to save isn't provided."));
 					}
 
 					outputPath.assign(argv[i + 2]);
 
 					if (outputPath.find(".wav") == std::string::npos) {
-						throw std::invalid_argument("Invalid output path, must be a wave file.\n");
+						throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Invalid output path, must be a wave file."));
 					}
 
 					if (i + 2 >= argc) {
-						throw std::invalid_argument("Path to input isn't provided.\n");
+						throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Path to input isn't provided."));
 					}
-
 					for (size_t j = i + 3; j < argc; j++) {
 						tmp = std::make_shared<std::string>(argv[j]);
 
 						if (tmp.get()->find(".wav") == std::string::npos) {
-							throw std::invalid_argument("Invalid input path, must be a wave file.\n");
+							throw Exception(std::string("main"), std::string("Invalid argument"), std::string("Invalid input path, must be a wave file."));
 						}
 
 						inputs.push_back(tmp);
@@ -70,14 +70,12 @@ int main(int32_t argc, char** argv) {
 
 			configHandler.handleConfig();
 		}
+	
 	}
-	catch (std::invalid_argument err) {
-		std::cerr << err.what() << std::endl;
+	catch (Exception& err) {
+		std::cerr << err.info() << std::endl;
 		return 1;
 	}
-	catch (std::runtime_error err) {
-		std::cerr << err.what() << std::endl;
-		return 2;
-	}
+
 	return 0;
 }

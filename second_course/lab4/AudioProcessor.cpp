@@ -1,4 +1,5 @@
 #include "AudioProcessor.h"
+#include "exception.h"
 
 using namespace AudioProcessor;
 
@@ -19,7 +20,7 @@ uint32_t AudioProcessor::bytesToInt(const std::string& bytes, int32_t bytesCount
 	uint32_t res;
 
 	if (bytesCount > bytes.size()) {
-		throw std::invalid_argument("Buffer size exceeded.\n");
+		throw Exception(std::string("AudioProcessor::bytesToInt"), std::string("Invalid argument"), std::string("Buffer size exceeded."));
 	}
 
 	res = 0;
@@ -38,7 +39,7 @@ int32_t AudioProcessor::signedBytesToInt(const std::string& bytes, int32_t bytes
 	int32_t res;
 
 	if (bytesCount > bytes.size()) {
-		throw std::invalid_argument("Buffer size exceeded.\n");
+		throw Exception(std::string("AudioProcessor::signedBytesToInt"), std::string("Invalid argument"), std::string("Buffer size exceeded."));
 	}
 
 	res = 0;
@@ -83,7 +84,7 @@ Stream::Stream(const std::string& filePath) : path(filePath) {
 	this->file.open(filePath, std::ios::binary);
 
 	if (!this->file.is_open()) {
-		throw std::invalid_argument((std::string("Can't open ") + this->path + " file.\n").c_str());
+		throw Exception(std::string("Stream::Stream"), std::string("Invalid argument"), std::string("Can't open ") + this->path + " file.");
 	}
 }
 
@@ -92,7 +93,7 @@ void Stream::open() {
 	this->file.open(this->path);
 
 	if (!this->file.is_open()) {
-		throw std::invalid_argument((std::string("Can't open ") + this->path + " file.\n").c_str());
+		throw Exception(std::string("Stream::open"), std::string("Invalid argument"), std::string("Can't open ") + this->path + " file.");
 	}
 }
 
@@ -108,7 +109,7 @@ void Stream::read(int32_t size) {
 	char charBuff[sizeof(size_t) * 8];
 
 	if (size > sizeof(size_t) * 8) {
-		throw std::invalid_argument((std::string("Can't read ") + std::to_string(size) + std::string(" bytes, maximum for this system is: ") + std::to_string(sizeof(size_t) * 8) + std::string("\n")).c_str());
+		throw Exception(std::string("Stream::open"), std::string("Invalid argument"), std::string("Can't read ") + std::to_string(size) + std::string(" bytes, maximum for this system is: ") + std::to_string(sizeof(size_t) * 8) + ".");
 	}
 
 	this->file.read(charBuff, size);
@@ -147,25 +148,25 @@ AudioStream::AudioStream(std::string filePath) : Stream(filePath) {
 	read(36);
 
 	if (this->readBuff.substr(0, 4) != templ.substr(0, 4)) {
-		throw std::invalid_argument("File header is invalid, must be RIFF.");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("File header is invalid, must be RIFF."));
 	}
 	else if (this->readBuff.substr(8, 4) != templ.substr(8, 4)) {
-		throw std::invalid_argument("File header is invalid, must be WAVE.");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("File header is invalid, must be WAVE."));
 	}
 	else if (this->readBuff.substr(12, 4) != templ.substr(12, 4)) {
-		throw std::invalid_argument("File header is invalid, must be fmt.");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("File header is invalid, must be fmt."));
 	}
 	else if (this->readBuff.substr(16, 1) != templ.substr(16, 1)) {
-		throw std::invalid_argument("File header is invalid, block size is invalid.");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("File header is invalid, block size is invalid."));
 	}
 	else if (this->readBuff.substr(20, 1) != templ.substr(20, 1)) {
-		throw std::invalid_argument("Wrong audio format (Must be PCM).");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("Wrong audio format (Must be PCM)."));
 	}
 	else if (this->readBuff.substr(22, 1) != templ.substr(22, 1)) {
-		throw std::invalid_argument("Wrong number of channels (Must be mono).");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("Wrong number of channels (Must be mono)."));
 	}
 	else if (this->readBuff.substr(24, 4) != templ.substr(24, 4)) {
-		throw std::invalid_argument("Wrong frequency (Must be 44100 hz).");
+		throw Exception(std::string("AudioStream::AudioStream"), std::string("InvalidArgument"), std::string("Wrong frequency (Must be 44100 hz)."));
 	}
 
 	this->frequency = bytesToInt(getReadBuff(), 4, 24);
@@ -247,7 +248,7 @@ Processor::Processor(AudioStream& stream, std::string& path, int32_t startPoint,
 	this->outputFile.open(this->outputPath, std::ios_base::binary);
 
 	if (!this->outputFile.is_open()) {
-		throw std::invalid_argument((std::string("Can't create ") + this->outputPath + std::string(" file.\n")).c_str());
+		throw Exception(std::string("Processor::Processor"), std::string("Invalid Argument"), std::string("Can't create ") + this->outputPath + std::string(" file."));
 	}
 
 
@@ -295,7 +296,7 @@ Processor::~Processor() {
 
 
 void Processor::apply() {
-	throw std::runtime_error("Base processor class can't do anything with the file.");
+	throw Exception(std::string("Processor::apply"), std::string("Runtime error"), std::string("Base processor class can't do anything with the file."));
 }
 
 
@@ -325,11 +326,11 @@ void MuteProcessor::apply() {
 	this->stream.setPos(this->stream.getBytesTillData());
 
 	if (this->end < this->start && this->end != -1) {
-		throw std::invalid_argument("Invalid end point, end point must be bigger than start point.\n");
+		throw Exception(std::string("MuteProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, end point must be bigger than start point."));
 	}
 
 	if (this->end > this->stream.getDuration()) {
-		throw std::invalid_argument("Invalid end point, input file duration is smaller.\n");
+		throw Exception(std::string("MuteProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, input file duration is smaller."));
 	}
 
 	dumpOriginal(this->start);
@@ -414,11 +415,11 @@ void MixProcessor::apply() {
 	this->secondStream.setPos(this->secondStream.getBytesTillData() + 8);
 
 	if (this->end < this->start && this->end != -1) {
-		throw std::invalid_argument("Invalid end point, end point must be bigger than start point.\n");
+		throw Exception(std::string("MixProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, end point must be bigger than start point."));
 	}
 
 	if (this->end > this->stream.getDuration()) {
-		throw std::invalid_argument("Invalid end point, input file duration is smaller.\n");
+		throw Exception(std::string("MixProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, input file duration is smaller."));
 	}
 
 	dumpOriginal(this->start);
@@ -632,11 +633,11 @@ void EchoProcessor::apply() {
 	this->stream.setPos(this->stream.getBytesTillData() + 8);
 
 	if (this->end < this->start && this->end != -1) {
-		throw std::invalid_argument("Invalid end point, end point must be bigger than start point.\n");
+		throw Exception(std::string("EchoProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, end point must be bigger than start point."));
 	}
 
 	if (this->end > this->stream.getDuration()) {
-		throw std::invalid_argument("Invalid end point, input file duration is smaller.\n");
+		throw Exception(std::string("EchoProcessor::apply"), std::string("Invalid argument"), std::string("Invalid end point, input file duration is smaller."));
 	}
 
 	dumpOriginal(this->start);
@@ -741,14 +742,14 @@ ConfigHandler::commandStruct ConfigHandler::getLineInput(std::string& line, int3
 	}
 
 	if (vals.size() < 1) {
-		throw std::invalid_argument((std::string("Not enough arguments provided in line: ") + std::to_string(lineIdx) + std::string("\n")).c_str());
+		throw Exception(std::string("ConfigHandler::commandStruct"), std::string("Invalid argument"), std::string("Not enough arguments provided in line: ") + std::to_string(lineIdx) + '.');
 	}
 	if (links.size() == 0 && res.commandName == std::string("mix")) {
-		throw std::invalid_argument((std::string("File to mix with isn't provided in line: ") + std::to_string(lineIdx) + std::string("\n").c_str()));
+		throw Exception(std::string("ConfigHandler::commandStruct"), std::string("Invalid argument"), std::string("File to mix with isn't provided in line: ") + std::to_string(lineIdx) + '.');
 	}
 	for (size_t i = 0; i < links.size(); i++) {
 		if (links[i] > inputs.size()) {
-			throw std::invalid_argument((std::string("Link to file is out of bounds in line: ") + std::to_string(lineIdx) + std::string("\n").c_str()));
+			throw Exception(std::string("ConfigHandler::commandStruct"), std::string("Invalid argument"), std::string("Link to file is out of bounds in line: ") + std::to_string(lineIdx) + '.');
 		}
 	}
 
@@ -790,7 +791,7 @@ ConfigHandler::ConfigHandler(std::string& outputPath, std::string& configPath, s
 	file.open(this->path);
 
 	if (!file.is_open()) {
-		throw std::invalid_argument((std::string("Can't open ") + this->path + std::string(" file.\n")).c_str());
+		throw Exception(std::string("ConfigHandler::ConfigHandler"), std::string("Invalid argument"), std::string("Can't open ") + this->path + std::string(" file.\n"));
 	}
 }
 
@@ -856,7 +857,7 @@ void ConfigHandler::handleConfig() {
 			}
 
 			if (procIndexWas == procIndex) {
-				throw std::invalid_argument((std::string("Config is invalid, error occured in line: ") + std::to_string(lineIndex) + std::string(" Consider using a -h flag when launching the programm.\n")).c_str());
+				throw Exception(std::string("ConfigHandler::handleConfig"), std::string("Invalid argument"), std::string("Config is invalid, error occured in line: ") + std::to_string(lineIndex) + std::string(". Consider using a -h flag when launching the programm."));
 			}
 		}
 
@@ -866,6 +867,10 @@ void ConfigHandler::handleConfig() {
 			std::remove((outputPath.substr(0, outputPath.find(".wav")) + std::to_string(procIndex - 2) + std::string(".tmp")).c_str());
 		}
 	}
+
+	//for (size_t i = 0; i < keys.size(); i++) {
+	//	delete factories[keys[i]];
+	//}
 
 	save(curPath, factories);
 

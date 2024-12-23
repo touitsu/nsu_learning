@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "AudioProcessor.h"
+#include "exception.h"
 
 
 using namespace AudioProcessor;
