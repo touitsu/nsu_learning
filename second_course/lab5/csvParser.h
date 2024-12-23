@@ -50,12 +50,14 @@ public:
                 if (c == this->config.escapeChar) {
                     escapeCharacterMet = !escapeCharacterMet;
                 }
-                else if (c != this->config.sepCol) {
-                    tmp += c;
-                }
-                else {
+                
+                else if (c == this->config.sepCol && !escapeCharacterMet) {
                     res.push_back(tmp);
                     tmp.clear();
+                }
+
+                else {
+                    tmp += c;
                 }
             }
 
