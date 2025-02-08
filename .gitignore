@@ -373,3 +373,13 @@ FodyWeavers.xsd
 *.json
 *.wav
 *.csv
+
+# Gradle
+gradlew
+*.jar
+*.probe
+*.properties
+*.bin
+*.lock
+*.gradle
+*.bat
