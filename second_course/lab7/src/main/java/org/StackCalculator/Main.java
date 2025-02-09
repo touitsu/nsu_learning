@@ -1,7 +1,8 @@
 package org.StackCalculator;
 
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Stack;
 import java.util.TreeMap;
 
 public class Main {
@@ -30,21 +31,30 @@ public class Main {
     }
 
     public static void main(String[] args) {
-        StackCalculator stackCalculator = new StackCalculator();
-        ConfigParser configParser = new ConfigParser("config.txt");
-        CommandHandler commandHandler = new CommandHandler(new Context(stackCalculator, new TreeMap<>()));
-        String[] strs;
-
         try {
+
+            Factory factory = new Factory();
+            Context context = new Context(new Stack<Double>(), new TreeMap<String, Double>());
+            ConfigParser configParser = new ConfigParser("config.txt");
+            String[] strs;
+            ArrayList<String> tmp;
+
             strs = configParser.getCommands();
 
             for (int i = 0; i < strs.length; i++) {
-                if (strs[i].charAt(0) != '#') {
-                    commandHandler.handleCommand(tokenize(strs[i]), i + 1);
+                if (strs[i].charAt(0) != '#' && !strs[i].isEmpty()) {
+                    tmp = tokenize(strs[i]);
+                    tmp.remove(0);
+                    try {
+                        factory.createOperation(strs[i], i).complete(context, tmp);
+                    }
+                    catch (OperationException ex) {
+                        System.out.println(ex.getMessage());
+                    }
                 }
             }
         }
-        catch (RuntimeException e) {
+        catch (IOException e) {
             System.out.println(e.getMessage());
         }
     }

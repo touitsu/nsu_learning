@@ -1,11 +1,8 @@
 package org.StackCalculator;
 
+import java.util.ArrayList;
+
 public abstract class Operation {
-    protected Context context;
 
-    public Operation(Context context) {
-        this.context = context;
-    }
-
-    public abstract void complete() throws RuntimeException;
+    public abstract void complete(Context context, ArrayList<String> args) throws OperationException;
 }

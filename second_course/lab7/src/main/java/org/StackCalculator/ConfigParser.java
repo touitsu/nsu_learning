@@ -3,8 +3,6 @@ package org.StackCalculator;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 
 public final class ConfigParser {
     private final String path;
@@ -17,7 +15,7 @@ public final class ConfigParser {
         return this.path;
     }
 
-    public String[] getCommands() throws RuntimeException {
+    public String[] getCommands() throws IOException {
         BufferedReader reader;
         String[] res;
 
@@ -25,7 +23,7 @@ public final class ConfigParser {
             reader = new BufferedReader(new FileReader(this.path));
         }
         catch (IOException e) {
-            throw new RuntimeException("Can not open file " + this.path + ".");
+            throw new IOException("Can not open file " + this.path + ".");
         }
 
         res = reader.lines().toList().toArray(new String[0]);
@@ -34,7 +32,7 @@ public final class ConfigParser {
             reader.close();
         }
         catch (IOException e) {
-            throw new RuntimeException("Error closing " + path + " file.");
+            throw new IOException("Error closing " + path + " file.");
         }
 
         return res;

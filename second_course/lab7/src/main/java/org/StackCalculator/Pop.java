@@ -2,20 +2,15 @@ package org.StackCalculator;
 
 import java.util.ArrayList;
 import java.util.EmptyStackException;
-import java.lang.Math;
 
-public final class Sqrt extends Operation {
+public final class Pop extends Operation {
 
-    @Override
     public void complete(Context context, ArrayList<String> args) throws OperationException {
-        Double d1;
-
         try {
-            d1 = context.stack().pop();
-            context.stack().push(Math.pow(d1, 0.5));
+            context.stack().pop();
         }
         catch (EmptyStackException e) {
-            throw new OperationException("The stack is empty.");
+            throw new OperationException("Stack is empty.");
         }
     }
 }
