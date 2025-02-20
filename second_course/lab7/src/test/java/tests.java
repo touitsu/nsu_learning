@@ -124,7 +124,7 @@ public final class tests {
     }
 
     @Test
-    public void multiplyTest() {
+    public void multiplicationTest() {
         assertThrows(OperationException.class, () -> this.factory.createOperation("*", 0).complete(this.context, this.args));
 
         this.context.stack().push(10.0);
@@ -139,7 +139,7 @@ public final class tests {
     }
 
     @Test
-    public void divideTest() {
+    public void divisionTest() {
         assertThrows(OperationException.class, () -> this.factory.createOperation("/", 0).complete(this.context, this.args));
 
         this.context.stack().push(2.0);

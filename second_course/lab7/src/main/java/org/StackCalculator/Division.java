@@ -1,9 +1,8 @@
 package org.StackCalculator;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 
-public final class Multiply extends Operation {
+public final class Division extends Operation {
 
     @Override
     public void complete(Context context, ArrayList<String> args) throws OperationException {
@@ -16,6 +15,13 @@ public final class Multiply extends Operation {
         d1 = context.stack().pop();
         d2 = context.stack().pop();
 
-        context.stack().push(d1 * d2);
+        if (d2 == 0.0f) {
+            context.stack().push(d2);
+            context.stack().push(d1);
+            throw new OperationException("Division by zero.");
+        }
+        else {
+            context.stack().push(d1 / d2);
+        }
     }
 }
