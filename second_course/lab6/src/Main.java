@@ -40,7 +40,7 @@ public class Main {
                 System.out.println("Input path is not specified.");
             }
 
-            dumper = new CsvDumper("out.csv");
+            dumper = new CsvDumper("output.csv");
 
             for (int i = 0; i < args.length; i++) {
                 if (args[i].equals("-o")) {
@@ -53,7 +53,7 @@ public class Main {
                 }
             }
 
-            if (dumper.getPath().equals("out.csv")) {
+            if (dumper.getPath().equals("output.csv")) {
                 System.out.println("Output path is not specified.");
             }
 

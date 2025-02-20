@@ -26,7 +26,7 @@ public final class Parser {
         return false;
     }
 
-    public ArrayList<String> tokenize(char[] sep) throws RuntimeException {
+    public ArrayList<String> tokenize(char[] sep) {
         BufferedReader reader;
         ArrayList<String> tokens;
         List<String> allLines;

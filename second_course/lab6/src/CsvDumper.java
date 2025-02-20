@@ -14,7 +14,7 @@ public final class CsvDumper {
         return this.path;
     }
 
-    public void dump(TreeSet<Word> set) throws RuntimeException {
+    public void dump(TreeSet<Word> set) {
         FileOutputStream file;
         byte[] legend = "Word;Frequency;Percentage\n".getBytes();
 
