@@ -7,20 +7,15 @@ public final class Multiply extends Operation {
 
     @Override
     public void complete(Context context, ArrayList<String> args) throws OperationException {
-        Double d1, d2;
+        double d1, d2;
 
-        d1 = Double.NaN;
+        if (context.stack().size() < 2) {
+            throw new OperationException("Stack doesn't contain two elements.");
+        }
 
-        try {
-            d1 = context.stack().pop();
-            d2 = context.stack().pop();
-            context.stack().push(d1 * d2);
-        }
-        catch (EmptyStackException e) {
-            if (!d1.isNaN()) {
-                context.stack().push(d1);
-            }
-            throw new OperationException("The stack does not have two elements.");
-        }
+        d1 = context.stack().pop();
+        d2 = context.stack().pop();
+
+        context.stack().push(d1 * d2);
     }
 }

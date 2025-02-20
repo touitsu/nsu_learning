@@ -12,7 +12,7 @@ public final class Define extends Operation {
         }
 
         try {
-            tmp = Double.parseDouble(args.get(0));
+            Double.parseDouble(args.get(0));
             throw new OperationException("Variable name contains a parsable double, therefore it can not be a variable.");
         }
         catch (NumberFormatException e) {

@@ -19,7 +19,7 @@ public class Main {
         ArrayList<Word> wordList;
         TreeSet<Word> set;
         CsvDumper dumper;
-        char[] sep = " ,.<>[](){}!@#$%^&*_+-'\"\\/|?;:=".toCharArray();
+        final char[] sep = " ,.<>[](){}!@#$%^&*_+-'\"\\/|?;:=".toCharArray();
 
         try {
 

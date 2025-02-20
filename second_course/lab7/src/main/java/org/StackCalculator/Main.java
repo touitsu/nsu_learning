@@ -5,6 +5,10 @@ import java.util.ArrayList;
 import java.util.Stack;
 import java.util.TreeMap;
 
+import java.util.logging.Level;
+import java.util.logging.LogManager;
+import java.util.logging.Logger;
+
 public class Main {
     public static ArrayList<String> tokenize(String str) {
         ArrayList<String> res;
@@ -31,31 +35,42 @@ public class Main {
     }
 
     public static void main(String[] args) {
+
+        Logger logger = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
         try {
 
             Factory factory = new Factory();
             Context context = new Context(new Stack<Double>(), new TreeMap<String, Double>());
             ConfigParser configParser = new ConfigParser("config.txt");
             String[] strs;
+            String op;
             ArrayList<String> tmp;
 
             strs = configParser.getCommands();
 
             for (int i = 0; i < strs.length; i++) {
+                logger.log(Level.INFO, "Working with string " + i);
+
                 if (strs[i].charAt(0) != '#' && !strs[i].isEmpty()) {
                     tmp = tokenize(strs[i]);
+                    op = tmp.get(0);
                     tmp.remove(0);
                     try {
+                        logger.log(Level.INFO, "Trying to create operation " + op);
                         factory.createOperation(strs[i], i).complete(context, tmp);
+                        logger.log(Level.FINEST, "Completed operation " + op);
                     }
-                    catch (OperationException ex) {
+                    catch (OperationException | StackException ex) {
+                        logger.log(Level.WARNING, "Failed to complete operation \"" + op + "\" in line: " + i + " \n Reason: " + ex.getMessage());
                         System.out.println(ex.getMessage());
                     }
                 }
             }
         }
-        catch (IOException e) {
-            System.out.println(e.getMessage());
+        catch (FactoryException | IOException e) {
+            logger.log(Level.SEVERE, "Failed to initialise, reason: " + e.getMessage());
+            System.out.println(e.getClass() + " " + e.getMessage());
         }
     }
 }

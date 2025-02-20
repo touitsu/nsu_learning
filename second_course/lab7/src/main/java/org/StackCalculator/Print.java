@@ -1,22 +1,20 @@
 package org.StackCalculator;
 
 import java.util.ArrayList;
-import java.util.EmptyStackException;
 
 public final class Print extends Operation {
 
-    public void complete(Context context, ArrayList<String> args) throws OperationException {
-        double tmp;
+    public void complete(Context context, ArrayList<String> args) throws StackException {
+        double d1;
 
-        try {
-            tmp = context.stack().pop();
-
-            System.out.println(tmp);
-
-            context.stack().push(tmp);
+        if (context.stack().isEmpty()) {
+            throw new StackException("Stack is empty.");
         }
-        catch (EmptyStackException e) {
-            throw new OperationException("The stack is empty.");
-        }
+
+        d1 = context.stack().pop();
+
+        System.out.println(d1);
+
+        context.stack().push(d1);
     }
 }
