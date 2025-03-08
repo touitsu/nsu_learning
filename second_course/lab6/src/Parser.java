@@ -1,21 +1,16 @@
-import java.awt.*;
+
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 
 public final class Parser {
     private final String path;
 
     public Parser(String path) {
         this.path = path;
-    }
-
-    public String getPath() {
-        return this.path;
     }
 
     public ArrayList<String> getLine(HashSet<Character> sep, int idx) {
