@@ -1,85 +1,45 @@
-import java.util.ArrayList;
-import java.util.TreeSet;
+import java.util.Objects;
 
 public class Main {
 
-    private static int ArrayIdx(ArrayList<Word> wordList, String str) {
-        for (int i = 0; i < wordList.size(); i++) {
-            if (wordList.get(i).toString().equals(str)) {
-                return i;
+    public static void main(String[] args) {
+        WordStat stat = new WordStat();
+        String inputPath, outputPath;
+
+        inputPath = "";
+        outputPath = "";
+
+        for (int i = 0; i < args.length; i++) {
+            if (args[i].equals("-i")) {
+                if (args.length-1 != i) {
+                    inputPath = args[i+1];
+                    i++;
+                }
+            }
+            else if (args[i].equals("-o")) {
+                if (args.length-1 != i) {
+                    outputPath = args[i+1];
+                    i++;
+                }
+            }
+            else {
+                System.err.println("Unknown argument \"" + args[i] + "\".");
             }
         }
 
-        return -1;
-    }
-
-    public static void main(String[] args) {
-        Parser parser;
-        ArrayList<String> tokenList;
-        ArrayList<Word> wordList;
-        TreeSet<Word> set;
-        CsvDumper dumper;
-        final char[] sep = " ,.<>[](){}!@#$%^&*_+-'\"\\/|?;:=".toCharArray();
+        if (inputPath.isEmpty()) {
+            System.err.println("Input file isn't specified.");
+        }
+        if (outputPath.isEmpty()) {
+            System.err.println("Output file isn't specified.");
+            outputPath = "out.csv";
+        }
 
         try {
-
-            parser = new Parser("input.txt");
-
-            for (int i = 0; i < args.length; i++) {
-                if (args[i].equals("-i")) {
-                    try {
-                        parser = new Parser(args[i+1]);
-                    }
-                    catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("Flag -i is given, but input path is not specified.");
-                    }
-                }
-            }
-
-            if (parser.getPath().equals("input.txt")) {
-                System.out.println("Input path is not specified.");
-            }
-
-            dumper = new CsvDumper("output.csv");
-
-            for (int i = 0; i < args.length; i++) {
-                if (args[i].equals("-o")) {
-                    try {
-                        dumper = new CsvDumper(args[i+1]);
-                    }
-                    catch (ArrayIndexOutOfBoundsException e) {
-                        System.out.println("Flag -o is given, but output path is not specified.");
-                    }
-                }
-            }
-
-            if (dumper.getPath().equals("output.csv")) {
-                System.out.println("Output path is not specified.");
-            }
-
-            wordList = new ArrayList<Word>();
-            tokenList = parser.tokenize(sep);
-
-            for (String s : tokenList) {
-
-                int idx = ArrayIdx(wordList, s);
-
-                if (idx != -1) {
-                    wordList.get(idx).incFreq();
-                } else {
-                    Word newWord = new Word(s);
-                    wordList.add(newWord);
-                }
-            }
-
-            set = new TreeSet<Word>(wordList);
-
-            Word.setTotalWords(set.size());
-
-            dumper.dump(set);
+            stat.complete(inputPath, outputPath, ".,/'\\\";:[]{}!@#$%^&*()-=_+<> ");
         }
         catch (RuntimeException e) {
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 }

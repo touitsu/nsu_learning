@@ -1,8 +1,10 @@
+import java.awt.*;
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 
 public final class Parser {
@@ -16,53 +18,46 @@ public final class Parser {
         return this.path;
     }
 
-    public static boolean inArray(char c, char[] arr) {
-        for (char value : arr) {
-            if (value == c) {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    public ArrayList<String> tokenize(char[] sep) {
-        BufferedReader reader;
+    public ArrayList<String> getLine(HashSet<Character> sep, int idx) {
+        String str;
+        StringBuilder tmp;
         ArrayList<String> tokens;
-        List<String> allLines;
 
-        try {
-            reader = new BufferedReader(new FileReader(this.path));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException("File " + this.path + " is not found.");
-        }
+        try (BufferedReader file = new BufferedReader(new FileReader(this.path))) {
+            for (int i = 0; i < idx; i++) {
+                file.readLine();
+            }
 
-        tokens = new ArrayList<String>();
-        allLines = reader.lines().toList();
+            str = file.readLine();
 
-        for (int i = 0, lidx = 0; i < allLines.size(); i++, lidx = 0) {
-            for (int j = 0; j < allLines.get(i).length(); j++) {
-                if (inArray(allLines.get(i).charAt(j), sep)) {
-                    if (lidx != j) {
-                        tokens.add(allLines.get(i).substring(lidx, j));
-                    }
+            if(str == null) {
+                return null;
+            }
 
-                    lidx = j + 1;
+            tokens = new ArrayList<>();
+
+            tmp = new StringBuilder(new String());
+
+            for (int i = 0; i < str.length(); i++) {
+                if (sep.contains(str.charAt(i)) && !tmp.isEmpty()) {
+                    tokens.add(tmp.toString());
+                    tmp = new StringBuilder(new String());
+                }
+                else if (!sep.contains(str.charAt(i))) {
+                    tmp.append(str.charAt(i));
                 }
             }
 
-            if (lidx < allLines.get(i).length()) {
-                tokens.add(allLines.get(i).substring(lidx));
-            }
+            return tokens;
+
+        }
+        catch (FileNotFoundException ex) {
+            throw new RuntimeException("Input file not found.");
+        }
+        catch (IOException ex) {
+            throw new RuntimeException("Error closing input file.");
         }
 
-        try {
-            reader.close();
-        }
-        catch (IOException e) {
-            throw new RuntimeException("Cannot close reader.");
-        }
 
-        return tokens;
     }
 }

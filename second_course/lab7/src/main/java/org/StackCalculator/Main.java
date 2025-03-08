@@ -6,7 +6,6 @@ import java.util.Stack;
 import java.util.TreeMap;
 
 import java.util.logging.Level;
-import java.util.logging.LogManager;
 import java.util.logging.Logger;
 
 public class Main {
@@ -45,17 +44,20 @@ public class Main {
             ConfigParser configParser = null;
 
             if (args.length == 0) {
+                logger.log(Level.INFO, "Input path isn't specified");
+                logger.log(Level.INFO, "Opening \"config.txt\" as input file.");
                 configParser = new ConfigParser("config.txt");
-                logger.log(Level.INFO, "Input path isn't specified.");
             }
             else {
                 for (int i = 0; i < args.length && configParser == null; i++) {
                     if (args[i].equals("-i") && i < args.length - 1) {
+                        logger.log(Level.INFO, "Opening \"" + args[i + 1] + "\" as input file.");
                         configParser = new ConfigParser(args[i + 1]);
+
                     }
                     else {
-                        logger.log(Level.WARNING, "Flag -i is given, but input path isn't specified.");
-                        System.out.println("Flag -i is given, but input path isn't specified.");
+                        logger.log(Level.WARNING, "Flag -i is given, but input path isn't specified");
+                        logger.log(Level.INFO, "Opening \"config.txt\" as input file.");
                         configParser = new ConfigParser("config.txt");
                     }
                 }

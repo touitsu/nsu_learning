@@ -1,7 +1,7 @@
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.util.TreeSet;
+import java.util.Map;
 
 public final class CsvDumper {
     private final String path;
@@ -14,13 +14,12 @@ public final class CsvDumper {
         return this.path;
     }
 
-    public void dump(TreeSet<Word> set) {
+    public void dump(Map<String, Integer> map, int totalWordsCnt) {
         FileOutputStream file;
-        byte[] legend = "Word;Frequency;Percentage\n".getBytes();
 
         try {
             file = new FileOutputStream(this.path, false);
-            file.write(legend);
+            file.write("Word;Frequency;Percentage\n".getBytes());
         }
         catch (FileNotFoundException e) {
             throw new RuntimeException("Output file cannot be created.");
@@ -29,24 +28,12 @@ public final class CsvDumper {
             throw new RuntimeException("Unable to write legend to the output file.");
         }
 
-        for (Word w : set.descendingSet()) {
+        for (Map.Entry<String, Integer> entry: map.entrySet()) {
             try {
-                for (int j = 0; j < w.toString().length(); j++) {
-                    file.write(w.toString().charAt(j));
-                }
-
-                file.write(';');
-
-                file.write(w.getFreq().toString().getBytes());
-
-                file.write(';');
-
-                file.write(String.format("%.2f", w.getPercentage()).getBytes());
-
-                file.write('\n');
+                file.write((entry.getKey() + ';' + entry.getValue() + ';' + String.format("%.2f", entry.getValue().doubleValue()/totalWordsCnt) + '\n').getBytes());
             }
             catch (IOException e) {
-                throw new RuntimeException("Unable to write to file word " + w.toString() + ".");
+                throw new RuntimeException("Unable to write to file word " + entry.getKey() + ".");
             }
         }
 
