@@ -1,10 +1,8 @@
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.HashSet;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public final class WordStat {
 
@@ -30,22 +28,15 @@ public final class WordStat {
         for (int i = 1; tokens != null; i++) {
 
             for (String token : tokens) {
-                if (map.containsKey(token)) {
-                    map.replace(token, map.get(token), map.get(token) + 1);
-                }
-                else {
+                if (map.replace(token, map.get(token) == null ? 1 : map.get(token) + 1) == null) {
                     map.put(token, 1);
                 }
+
                 totalTokens++;
             }
 
             tokens = parser.getLine(separators, i);
         }
-
-        map = map.entrySet()
-                .stream()
-                .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
         dumper.dump(map, totalTokens);
     }

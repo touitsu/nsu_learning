@@ -1,7 +1,9 @@
 import java.io.FileOutputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public final class CsvDumper {
     private final String path;
@@ -14,6 +16,11 @@ public final class CsvDumper {
 
         try (FileOutputStream file = new FileOutputStream(this.path, false)){
             file.write("Word;Frequency;Percentage\n".getBytes());
+
+            map = map.entrySet()
+                    .stream()
+                    .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
+                    .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
             for (Map.Entry<String, Integer> entry: map.entrySet()) {
                 try {

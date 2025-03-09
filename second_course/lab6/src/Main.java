@@ -5,8 +5,8 @@ public class Main {
         WordStat stat = new WordStat();
         String inputPath, outputPath;
 
-        inputPath = "";
-        outputPath = "";
+        inputPath = new String();
+        outputPath = new String();
 
         for (int i = 0; i < args.length; i++) {
             if (args[i].equals("-i")) {
