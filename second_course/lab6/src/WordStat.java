@@ -28,9 +28,8 @@ public final class WordStat {
         for (int i = 1; tokens != null; i++) {
 
             for (String token : tokens) {
-                if (map.replace(token, map.get(token) == null ? 1 : map.get(token) + 1) == null) {
-                    map.put(token, 1);
-                }
+
+                map.compute(token, (k,v) -> v == null ? 1 : v + 1);
 
                 totalTokens++;
             }
