@@ -1,10 +1,12 @@
 package org.StackCalculator;
 
+import org.Exceptions.OperationException;
+
 import java.util.ArrayList;
 
 public final class Define extends Operation {
 
-    public void complete(Context context, ArrayList<String> args) throws OperationException{
+    public void complete(Context context, ArrayList<String> args) throws OperationException {
         double tmp;
 
         if (args.size() != 2) {

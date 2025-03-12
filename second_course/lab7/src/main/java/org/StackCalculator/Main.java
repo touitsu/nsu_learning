@@ -1,5 +1,9 @@
 package org.StackCalculator;
 
+import org.Exceptions.FactoryException;
+import org.Exceptions.OperationException;
+import org.Exceptions.StackException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Stack;

@@ -1,4 +1,4 @@
-package org.StackCalculator;
+package org.Exceptions;
 
 public final class OperationException extends Exception {
 

@@ -6,11 +6,13 @@ import java.util.Map;
 
 public final class WordStat {
 
-    public void complete(String inputPath, String outputPath, String seps) {
+    private final Map<String, Integer> workResult;
+    private final int totalTokens;
+
+    public WordStat(String inputPath, String seps) {
         Map<String, Integer> map;
         ArrayList<String> tokens;
         Parser parser;
-        CsvDumper dumper;
         int totalTokens;
         HashSet<Character> separators;
 
@@ -22,14 +24,14 @@ public final class WordStat {
         map = new HashMap<>();
         parser = new Parser(inputPath);
         totalTokens = 0;
-        dumper = new CsvDumper(outputPath);
+
 
         tokens = parser.getLine(separators, 0);
         for (int i = 1; tokens != null; i++) {
 
             for (String token : tokens) {
 
-                map.compute(token, (k,v) -> v == null ? 1 : v + 1);
+                map.merge(token, 1, Integer::sum);
 
                 totalTokens++;
             }
@@ -37,6 +39,15 @@ public final class WordStat {
             tokens = parser.getLine(separators, i);
         }
 
-        dumper.dump(map, totalTokens);
+        this.workResult = map;
+        this.totalTokens = totalTokens;
+    }
+
+    public Map<String, Integer> getMap() {
+        return this.workResult;
+    }
+
+    public int getTotalTokens() {
+        return this.totalTokens;
     }
 }

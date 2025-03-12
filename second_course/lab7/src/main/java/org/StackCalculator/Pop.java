@@ -1,5 +1,7 @@
 package org.StackCalculator;
 
+import org.Exceptions.StackException;
+
 import java.util.ArrayList;
 import java.util.EmptyStackException;
 

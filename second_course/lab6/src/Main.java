@@ -2,7 +2,6 @@
 public class Main {
 
     public static void main(String[] args) {
-        WordStat stat = new WordStat();
         String inputPath, outputPath;
 
         inputPath = new String();
@@ -35,7 +34,7 @@ public class Main {
         }
 
         try {
-            stat.complete(inputPath, outputPath, ".,/'\\\";:[]{}!@#$%^&*()-=_+<> ");
+            new CsvDumper(outputPath).dump(new WordStat(inputPath, ".,/'\\\";:[]{}!@#$%^&*()-=_+<> "));
         }
         catch (RuntimeException e) {
             System.err.println(e.getMessage());

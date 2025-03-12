@@ -8,23 +8,24 @@ import java.util.stream.Collectors;
 public final class CsvDumper {
     private final String path;
 
-    public CsvDumper(String path) {
-        this.path = path;
+    public CsvDumper(String outputPath) {
+        this.path = outputPath;
     }
 
-    public void dump(Map<String, Integer> map, int totalWordsCnt) {
+    public void dump(WordStat wordStat) {
 
         try (FileOutputStream file = new FileOutputStream(this.path, false)){
             file.write("Word;Frequency;Percentage\n".getBytes());
+            Map<String, Integer> linkedHashMap;
 
-            map = map.entrySet()
+            linkedHashMap = wordStat.getMap().entrySet()
                     .stream()
                     .sorted(Map.Entry.<String, Integer>comparingByValue().reversed())
                     .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (oldValue, newValue) -> oldValue, LinkedHashMap::new));
 
-            for (Map.Entry<String, Integer> entry: map.entrySet()) {
+            for (Map.Entry<String, Integer> entry: linkedHashMap.entrySet()) {
                 try {
-                    file.write((entry.getKey() + ';' + entry.getValue() + ';' + String.format("%.2f", entry.getValue().doubleValue()/totalWordsCnt) + '\n').getBytes());
+                    file.write((entry.getKey() + ';' + entry.getValue() + ';' + String.format("%.2f", entry.getValue().doubleValue()/wordStat.getTotalTokens()) + '\n').getBytes());
                 }
                 catch (IOException e) {
                     throw new RuntimeException("Unable to write to file word " + entry.getKey() + ".");

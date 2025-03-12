@@ -1,5 +1,7 @@
 package org.StackCalculator;
 
+import org.Exceptions.OperationException;
+
 import java.util.ArrayList;
 
 public final class Division extends Operation {
