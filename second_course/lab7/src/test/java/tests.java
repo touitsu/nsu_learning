@@ -1,6 +1,4 @@
-import org.Exceptions.FactoryException;
-import org.Exceptions.OperationException;
-import org.Exceptions.StackException;
+import org.Exceptions.*;
 import org.StackCalculator.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +26,7 @@ public final class tests {
     public void factoryTest() {
         String[] commands = {"+", "-", "*", "/", "DEFINE", "PRINT", "POP", "PUSH"};
 
-        assertThrowsExactly(FactoryException.class, () -> this.factory.createOperation("ab", 0));
+        assertThrowsExactly(UnknownCommandException.class, () -> this.factory.createOperation("ab", 0));
 
         for (String command : commands) {
             assertDoesNotThrow(() -> this.factory.createOperation(command, 0));
@@ -98,11 +96,11 @@ public final class tests {
 
     @Test
     public void additionTest() {
-        assertThrows(StackException.class, () -> this.factory.createOperation("-", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("+", 0).complete(this.context, this.args));
 
         this.context.stack().push(2.0);
 
-        assertThrows(OperationException.class, () -> this.factory.createOperation("+", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("+", 0).complete(this.context, this.args));
 
         this.context.stack().push(2.0);
 
@@ -128,11 +126,11 @@ public final class tests {
 
     @Test
     public void multiplicationTest() {
-        assertThrows(OperationException.class, () -> this.factory.createOperation("*", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("*", 0).complete(this.context, this.args));
 
         this.context.stack().push(10.0);
 
-        assertThrows(OperationException.class, () -> this.factory.createOperation("*", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("*", 0).complete(this.context, this.args));
 
         this.context.stack().push(10.0);
 
@@ -143,11 +141,11 @@ public final class tests {
 
     @Test
     public void divisionTest() {
-        assertThrows(OperationException.class, () -> this.factory.createOperation("/", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("/", 0).complete(this.context, this.args));
 
         this.context.stack().push(2.0);
 
-        assertThrows(OperationException.class, () -> this.factory.createOperation("/", 0).complete(this.context, this.args));
+        assertThrows(StackUnderflowException.class, () -> this.factory.createOperation("/", 0).complete(this.context, this.args));
 
         this.context.stack().push(10.0);
 
