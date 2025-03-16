@@ -1,40 +1,58 @@
 package org.StackCalculator;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
+import org.Exceptions.ConfigException;
+import org.Exceptions.ConfigFormatException;
+import org.Exceptions.ConfigNotFoundException;
+
+import java.io.*;
 
 public final class ConfigParser {
     private final String path;
+    private int linesRead;
+    private BufferedReader reader;
 
     public ConfigParser(String path) {
         this.path = path;
+        this.linesRead = 0;
+
     }
 
-    public String getPath() {
-        return this.path;
-    }
+    public String getLine() throws ConfigException {
+        String line;
 
-    public String[] getCommands() throws IOException {
-        BufferedReader reader;
-        String[] res;
+        line = null;
 
-        try {
-            reader = new BufferedReader(new FileReader(this.path));
+        try (BufferedReader file = this.path.equals("Stream") ? new BufferedReader(new InputStreamReader(new InputStreamWrapper(System.in))) : new BufferedReader(new FileReader(this.path))) {
+
+            for (int i = 0; i < this.linesRead && !this.path.equals("Stream"); i++) {
+                file.readLine();
+            }
+
+            line = file.readLine();
+
+            System.out.println(line.charAt(0));
+
+            if (line.equals("exit") && this.path.equals("Stream")) {
+                System.in.close();
+                return null;
+            }
+
+            if (line == null) {
+                return null;
+            }
+
+        }
+        catch (FileNotFoundException e) {
+            throw new ConfigNotFoundException(e.getMessage());
         }
         catch (IOException e) {
-            throw new IOException("Can not open file " + this.path + ".");
+            if (!e.getMessage().equals("Stream closed")) {
+                throw new ConfigFormatException(e.getMessage());
+            }
         }
 
-        res = reader.lines().toList().toArray(new String[0]);
+        this.linesRead++;
 
-        try {
-            reader.close();
-        }
-        catch (IOException e) {
-            throw new IOException("Error closing " + path + " file.");
-        }
-
-        return res;
+        return line;
     }
 }

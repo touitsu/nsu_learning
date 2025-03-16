@@ -1,6 +1,6 @@
 package org.Exceptions;
 
-public final class FactoryException extends Exception {
+public class FactoryException extends CalculatorException {
 
     public FactoryException (String msg) {
         super(msg);

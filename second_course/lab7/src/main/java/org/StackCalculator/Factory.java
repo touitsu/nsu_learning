@@ -1,12 +1,16 @@
 package org.StackCalculator;
 
+import org.Exceptions.FactoryConfigAbsentException;
+import org.Exceptions.FactoryConfigFormatException;
 import org.Exceptions.FactoryException;
+import org.Exceptions.UnknownCommandException;
+import org.Operations.Operation;
 
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 public final class Factory {
@@ -17,52 +21,47 @@ public final class Factory {
         BufferedReader cfgReader;
         String[] strs;
 
-        try {
-            cfgReader = new BufferedReader(new FileReader("src/main/java/org/StackCalculator/FactoryConfig.txt"));
+        try (BufferedReader file = new BufferedReader(new FileReader("src/main/java/org/StackCalculator/FactoryConfig.txt"))) {
+
             this.commandMap = new TreeMap<String, String>();
 
-            strs = cfgReader.lines().toList().toArray(new String[0]);
-
-            for (String str: strs) {
-                this.commandMap.put(Main.tokenize(str).get(0), Main.tokenize(str).get(1));
+            for (String line = file.readLine(); line != null; line = file.readLine()) {
+                this.commandMap.put(line.substring(0, line.indexOf(' ')), line.substring(line.indexOf(' ') + 1));
             }
         }
         catch (FileNotFoundException e) {
-            throw new FactoryException("Factory config file not found.");
+            throw new FactoryConfigAbsentException(e.getMessage());
         }
-        catch (IndexOutOfBoundsException e) {
-            throw new FactoryException("Factory config is incorrect.");
+        catch (IOException e) {
+            throw new FactoryConfigFormatException(e.getMessage());
         }
     }
 
      public Operation createOperation(String command, int commandLine) throws FactoryException {
-        ArrayList<String> tokens;
         Class<?> operation;
 
-        tokens = Main.tokenize(command);
-
-        if (!commandMap.containsKey(tokens.get(0))) {
-            throw new FactoryException("Unknown command \"" + tokens.get(0) +  "\" in line " + commandLine + ".");
+        if (!commandMap.containsKey(command)) {
+            throw new UnknownCommandException("Unknown command \"" + command +  "\" in line " + commandLine + ".");
         }
         else {
             try {
-                operation = Class.forName(commandMap.get(tokens.get(0)));
+                operation = Class.forName(commandMap.get(command));
                 return (Operation) operation.getDeclaredConstructor().newInstance();
             }
             catch (ClassNotFoundException e) {
-                throw new FactoryException("Class \"" + commandMap.get(tokens.get(0)) + "\" is not found.");
+                throw new org.Exceptions.ClassNotFoundException("Class \"" + commandMap.get(command) + "\" is not found.");
             }
             catch (InstantiationException e) {
-                throw new FactoryException("Error initializing class \"" + commandMap.get(tokens.get(0))  + "\".");
+                throw new FactoryException("Error initializing class \"" + commandMap.get(command)  + "\".");
             }
             catch (IllegalAccessException e) {
-                throw new FactoryException("Illegal access in class \"" + commandMap.get(tokens.get(0)) + "\".");
+                throw new FactoryException("Illegal access in class \"" + commandMap.get(command) + "\".");
             }
             catch (NoSuchMethodException e) {
-                throw new FactoryException("No constructor for class \"" + commandMap.get(tokens.get(0)) + "\".");
+                throw new FactoryException("No constructor for class \"" + commandMap.get(command) + "\".");
             }
             catch (InvocationTargetException e) {
-                throw new FactoryException("\"" + commandMap.get(tokens.get(0)) + "\" had thrown an exception on invocation.");
+                throw new FactoryException("\"" + commandMap.get(command) + "\" had thrown an exception on invocation.");
             }
         }
      }

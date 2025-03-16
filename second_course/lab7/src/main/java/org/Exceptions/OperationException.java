@@ -1,6 +1,6 @@
 package org.Exceptions;
 
-public final class OperationException extends Exception {
+public class OperationException extends CalculatorException {
 
     public OperationException (String msg) {
         super(msg);

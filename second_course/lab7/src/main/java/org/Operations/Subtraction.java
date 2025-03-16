@@ -1,6 +1,8 @@
-package org.StackCalculator;
+package org.Operations;
 
 import org.Exceptions.StackException;
+import org.Exceptions.StackUnderflowException;
+import org.StackCalculator.Context;
 
 import java.util.ArrayList;
 
@@ -11,7 +13,7 @@ public final class Subtraction extends Operation {
         double d1, d2;
 
         if (context.stack().size() < 2) {
-            throw new StackException("Stack doesn't contain two elements.");
+            throw new StackUnderflowException("Stack doesn't contain two elements.");
         }
 
         d1 = context.stack().pop();

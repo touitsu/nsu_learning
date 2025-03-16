@@ -1,6 +1,8 @@
-package org.StackCalculator;
+package org.Operations;
 
 import org.Exceptions.StackException;
+import org.Exceptions.StackUnderflowException;
+import org.StackCalculator.Context;
 
 import java.util.ArrayList;
 
@@ -10,7 +12,7 @@ public final class Print extends Operation {
         double d1;
 
         if (context.stack().isEmpty()) {
-            throw new StackException("Stack is empty.");
+            throw new StackUnderflowException("Stack is empty.");
         }
 
         d1 = context.stack().pop();

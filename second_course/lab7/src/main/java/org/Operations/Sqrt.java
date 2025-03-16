@@ -1,6 +1,8 @@
-package org.StackCalculator;
+package org.Operations;
 
 import org.Exceptions.StackException;
+import org.Exceptions.StackUnderflowException;
+import org.StackCalculator.Context;
 
 import java.util.ArrayList;
 import java.lang.Math;
@@ -12,7 +14,7 @@ public final class Sqrt extends Operation {
         double d1;
 
         if (context.stack().isEmpty()) {
-            throw new StackException("The stack is empty.");
+            throw new StackUnderflowException("The stack is empty.");
         }
 
         d1 = context.stack().pop();

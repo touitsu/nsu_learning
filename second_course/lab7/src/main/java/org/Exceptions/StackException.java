@@ -1,6 +1,6 @@
 package org.Exceptions;
 
-public final class StackException extends Exception {
+public class StackException extends CalculatorException {
 
     public StackException (String msg) {
         super(msg);
