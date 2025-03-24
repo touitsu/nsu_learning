@@ -26,7 +26,7 @@ public final class InputStreamWrapper extends InputStream {
     }
 
     @Override
-    public void close() throws IOException{
+    public void close() throws IOException {
 
     }
 
