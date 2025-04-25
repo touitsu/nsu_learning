@@ -4,32 +4,39 @@ import org.chess.model.Board;
 import org.chess.model.Coordinates;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public abstract class Piece {
-    protected Side side;
-    protected PieceType type;
+    protected final Side side;
+    protected final PieceType type;
+    protected Coordinates coordinates;
 
-    public Piece(Side side, PieceType type) {
+    public Piece(@NotNull Side side, @NotNull PieceType type, @NotNull Coordinates coordinates) {
         this.side = side;
         this.type = type;
+        this.coordinates = coordinates;
     }
 
-    abstract public ArrayList<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position);
-
-    protected boolean isMoveAvailable(@NotNull Board currentBoard, @NotNull Coordinates coordinates) {
-        Piece piece;
-
-        piece = currentBoard.getPieceAt(coordinates.x(), coordinates.y());
-
-        return piece == null || (piece.side != this.side && piece.type != PieceType.King && piece.type != PieceType.OutOfBounds);
-    }
+    abstract public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position);
 
     public Side getSide() {
-        return side;
+        return this.side;
     }
 
     public PieceType getType() {
-        return type;
+        return this.type;
+    }
+
+    public Coordinates getCoordinates() {
+        return this.coordinates;
+    }
+
+    public void move(Coordinates coordinates) {
+        this.coordinates = coordinates;
+    }
+
+    @Override
+    public int hashCode() {
+        return this.coordinates.x() * 1000 + this.coordinates.y() * 100 + this.type.getValue() * 10 + this.side.getValue();
     }
 }

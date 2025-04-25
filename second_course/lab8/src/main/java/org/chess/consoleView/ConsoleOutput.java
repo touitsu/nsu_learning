@@ -7,6 +7,16 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ConsoleOutput {
 
+    private static void clearLine() {
+        System.out.print("\033[2K\033[1G");
+        System.out.flush();
+    }
+
+    public void printStatus(@NotNull String str) {
+        clearLine();
+        System.out.println(str);
+    }
+
     private static String determinePieceOutput(@Nullable Piece piece) {
         String symbols = " pbkrQK";
         String res;
@@ -14,6 +24,7 @@ public final class ConsoleOutput {
         res = "";
 
         if (piece == null) {
+            res += symbols.charAt(0);
             res += symbols.charAt(0);
         }
         else {
@@ -37,19 +48,21 @@ public final class ConsoleOutput {
         System.out.print("  ");
 
         for (int y = 0; y < 8; y++) {
-            System.out.print(y + " ");
+            System.out.print((char)(y + 'a') + " ");
         }
 
         System.out.println();
 
-        for (int y = 0; y < 8; y++) {
+        for (int y = 8; y > 0; y--) {
             System.out.print(y);
             System.out.print(" ");
-            for (int x = 0; x < 8; x++) {
+            for (int x = 1; x < 9; x++) {
 
-                System.out.print(determinePieceOutput(board.getPieceAt(x, y)));
+                System.out.print(determinePieceOutput(board.getPieceAt(x-1, y-1)));
             }
             System.out.println();
         }
+
+        System.out.println();
     }
 }

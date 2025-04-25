@@ -3,19 +3,19 @@ package org.chess.model.pieces;
 import org.chess.model.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 
 public final class Pawn extends Piece {
 
-    public Pawn(Side side) {
-        super(side, PieceType.Pawn);
+    public Pawn(@NotNull Side side, Coordinates coordinates) {
+        super(side, PieceType.Pawn, coordinates);
     }
 
     @Override
-    public ArrayList<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
-        ArrayList<Coordinates> res;
+    public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
+        HashSet<Coordinates> res;
 
-        res = new ArrayList<Coordinates>();
+        res = new HashSet<Coordinates>();
 
         if (currentBoard.getPieceAt(position.x(), position.y() + this.side.getValue()) == null &&
                 (position.y() + this.side.getValue()) < 8 &&
@@ -31,15 +31,8 @@ public final class Pawn extends Piece {
             res.add(new Coordinates(position.x(), position.y() + 2 * super.side.getValue()));
         }
 
-        if (isMoveAvailable(currentBoard, new Coordinates(position.x() + 1, position.y() + this.side.getValue())) &&
-                currentBoard.getPieceAt(position.x() + 1, position.y() + this.side.getValue()) != null) {
-            res.add(new Coordinates(position.x() + 1, position.y() + super.side.getValue()));
-        }
-
-        if (isMoveAvailable(currentBoard, new Coordinates(position.x() - 1, position.y() + this.side.getValue())) &&
-                currentBoard.getPieceAt(position.x() - 1, position.y() + this.side.getValue()) != null) {
-            res.add(new Coordinates(position.x() - 1, position.y() + super.side.getValue()));
-        }
+        res.add(new Coordinates(position.x() + 1, position.y() + super.side.getValue()));
+        res.add(new Coordinates(position.x() - 1, position.y() + super.side.getValue()));
 
         return res;
     }

@@ -22,6 +22,10 @@ public record Coordinates(int x, int y) implements Comparable {
         return "(" + this.x + ", " + this.y + ")";
     }
 
+    public String toChessNotation() {
+        return (char)(this.x + 'a') + String.valueOf(this.y + 1);
+    }
+
     @Override
     public int compareTo(@NotNull Object o) {
         if (o.getClass() != this.getClass()) {
