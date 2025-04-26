@@ -18,28 +18,28 @@ public final class Bishop extends Piece {
 
         res = new HashSet<Coordinates>();
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() + i, position.y() + i); i++) {
             res.add(new Coordinates(position.x() + i, position.y() + i));
             if (currentBoard.getPieceAt(position.x() + i, position.y() + i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() + i, position.y() - i); i++) {
             res.add(new Coordinates(position.x() + i, position.y() - i));
             if (currentBoard.getPieceAt(position.x() + i, position.y() - i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag == 0; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag == 0 && inBounds(position.x() - i, position.y() + i); i++) {
             res.add(new Coordinates(position.x() - i, position.y() + i));
             if (currentBoard.getPieceAt(position.x() - i, position.y() + i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() - i, position.y() - i); i++) {
             res.add(new Coordinates(position.x() - i, position.y() - i));
             if (currentBoard.getPieceAt(position.x() - i, position.y() - i) != null) {
                 breakFlag = 1;

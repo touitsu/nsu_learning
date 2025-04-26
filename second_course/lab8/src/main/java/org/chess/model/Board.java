@@ -5,9 +5,7 @@ import org.chess.model.exceptions.MoveUnavailableException;
 import org.chess.model.pieces.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 
 public final class Board {
     private HashMap<Coordinates, Piece> pieces;
@@ -49,6 +47,18 @@ public final class Board {
     }
 
 
+    @SuppressWarnings("unchecked")
+    private Board copy() {
+        final Board res;
+
+        res = new Board();
+
+        res.pieces = (HashMap<Coordinates, Piece>) this.pieces.clone();
+
+        return res;
+    }
+
+
     public Piece getPieceAt(int x, int y) {
         return pieces.get(new Coordinates(x, y));
     }
@@ -85,34 +95,30 @@ public final class Board {
         final Piece pieceAtStart;
         final Piece pieceAtEnd;
         final boolean res;
+        final Board newBoard;
 
-        pieceAtStart = getPieceAt(start);
-        pieceAtEnd = getPieceAt(end);
+        newBoard = this.copy();
 
+        pieceAtStart = newBoard.getPieceAt(start);
+        pieceAtEnd = newBoard.getPieceAt(end);
 
         if (pieceAtEnd != null) {
-            this.pieces.remove(end);
+            newBoard.pieces.remove(end);
         }
 
         pieceAtStart.move(end);
-        this.pieces.remove(start);
-        setPiece(pieceAtStart);
+        newBoard.pieces.remove(start);
+        newBoard.setPiece(pieceAtStart);
 
-        res = doesAnyPieceAttack(king.getCoordinates(), king.getSide());
+        res = newBoard.doesAnyPieceAttack(king.getCoordinates(), king.getSide());
 
-        this.pieces.remove(end);
         pieceAtStart.move(start);
-        setPiece(pieceAtStart);
-
-        if (pieceAtEnd != null) {
-            setPiece(pieceAtEnd);
-        }
 
         return !res;
     }
 
 
-    private boolean isMoveAvaliable(@NotNull Coordinates start, @NotNull Coordinates end) throws MoveUnavailableException {
+    private boolean isMoveAvailable(@NotNull Coordinates start, @NotNull Coordinates end, @NotNull Side side) throws MoveUnavailableException {
         final Piece piece;
 
         piece = getPieceAt(start);
@@ -123,8 +129,8 @@ public final class Board {
         }
 
         //moving wrong side
-        if (piece.getSide() != this.currentMove) {
-            throw new MoveUnavailableException("Pieces with side " + piece.getSide() + " can't move while it is " + this.currentMove + " turn.\n");
+        if (piece.getSide() != side) {
+            throw new MoveUnavailableException("Pieces with side " + piece.getSide() + " can't move while it is " + side + " turn.\n");
         }
 
         if (!piece.calculateAvailableMoves(this, start).contains(end)) {
@@ -146,7 +152,7 @@ public final class Board {
 
         //trying to get urself checked
         if (piece.getType() == PieceType.King) {
-            if (doesAnyPieceAttack(end, this.currentMove)) {
+            if (doesAnyPieceAttack(end, side)) {
                 throw new MoveUnavailableException("King can't move into check.\n");
             }
         }
@@ -168,13 +174,14 @@ public final class Board {
     }
 
 
-    private boolean canEscapeCheck(@NotNull Piece king) {
+    private boolean hasAnyMoves(@NotNull Piece king) {
 
         for (Piece piece : this.pieces.values()) {
             if (piece.getSide() == king.getSide()) {
                 for (Coordinates move : piece.calculateAvailableMoves(this, piece.getCoordinates())) {
                     try {
-                        if (isMoveAvaliable(piece.getCoordinates(), move)) {
+                        if (isMoveAvailable(piece.getCoordinates(), move, king.getSide())) {
+                            System.out.println(piece + " " + piece.getCoordinates() + " " + move);
                             return true;
                         }
                     }
@@ -198,10 +205,11 @@ public final class Board {
 
         piece = getPieceAt(start);
 
-        System.out.println(piece.getType() + " " + piece.getSide());
-        System.out.println(piece.calculateAvailableMoves(this, start));
+        if (isMoveAvailable(start, end, this.currentMove)) {
 
-        if (isMoveAvaliable(start, end)) {
+            System.out.println(piece.getType() + " " + piece.getSide());
+            System.out.println(piece.calculateAvailableMoves(this, start));
+
             if (getPieceAt(end) != null) {
                 this.pieces.remove(end);
             }
@@ -218,7 +226,7 @@ public final class Board {
                 if (doesAnyPieceAttack(this.whiteKing.getCoordinates(), this.whiteKing.getSide())) {
                     this.isWhiteChecked = true;
 
-                    if (!canEscapeCheck(this.whiteKing)) {
+                    if (!hasAnyMoves(this.whiteKing)) {
                         throw new GameEndedException("White are checkmated!\n");
                     }
                 }
@@ -232,7 +240,7 @@ public final class Board {
                 if (doesAnyPieceAttack(this.blackKing.getCoordinates(), this.blackKing.getSide())) {
                     this.isBlackChecked = true;
 
-                    if (!canEscapeCheck(this.blackKing)) {
+                    if (!hasAnyMoves(this.blackKing)) {
                         throw new GameEndedException("Black are checkmated!\n");
                     }
                 }

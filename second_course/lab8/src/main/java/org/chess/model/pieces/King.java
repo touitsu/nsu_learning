@@ -20,7 +20,7 @@ public final class King extends Piece {
 
         for (int i = position.x() - 1; i < position.x() + 2; i++) {
             for (int j = position.y() - 1; j < position.y() + 2; j++) {
-                if (i != position.x() || j != position.y()) {
+                if (i != position.x() || j != position.y() && i >= 0 && i < 8 && j >=0 && j < 8) {
                     res.add(new Coordinates(i, j));
                 }
             }

@@ -18,25 +18,25 @@ public final class Rook extends Piece {
 
         res = new HashSet<Coordinates>();
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && position.x() + i < 8; i++) {
             res.add(new Coordinates(position.x() + i, position.y()));
             if (currentBoard.getPieceAt(position.x() + i, position.y()) != null) {
                 breakFlag = 1;
             }
         }
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && position.x() - i >= 0; i++) {
             res.add(new Coordinates(position.x() - i, position.y() ));
             if (currentBoard.getPieceAt(position.x() - i, position.y()) != null) {
                 breakFlag = 1;
             }
         }
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag == 0; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && position.y() + i < 8; i++) {
             res.add(new Coordinates(position.x(), position.y() + i));
             if (currentBoard.getPieceAt(position.x(), position.y() + i) != null) {
                 breakFlag = 1;
             }
         }
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1; i++) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && position.y() - i >= 0; i++) {
             res.add(new Coordinates(position.x(), position.y() - i));
             if (currentBoard.getPieceAt(position.x(), position.y() - i) != null) {
                 breakFlag = 1;

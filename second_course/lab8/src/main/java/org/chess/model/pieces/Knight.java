@@ -19,13 +19,21 @@ public final class Knight extends Piece {
         res = new HashSet<Coordinates>();
 
         for (int x = 1, y = 2; x < 3 && y > 0; x++, y--) {
-            res.add(new Coordinates(position.x() + x, position.y() + y));
+            if (inBounds(position.x() + x, position.y() + y)) {
+                res.add(new Coordinates(position.x() + x, position.y() + y));
+            }
 
-            res.add(new Coordinates(position.x() - x, position.y() + y));
+            if (inBounds(position.x() - x, position.y() + y)) {
+                res.add(new Coordinates(position.x() - x, position.y() + y));
+            }
 
-            res.add(new Coordinates(position.x() + x, position.y() - y));
+            if (inBounds(position.x() + x, position.y() - y)) {
+                res.add(new Coordinates(position.x() + x, position.y() - y));
+            }
 
-            res.add(new Coordinates(position.x() - x, position.y() - y));
+            if (inBounds(position.x() - x, position.y() - y)) {
+                res.add(new Coordinates(position.x() - x, position.y() - y));
+            }
         }
 
         return res;

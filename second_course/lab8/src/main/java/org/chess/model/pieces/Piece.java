@@ -35,6 +35,10 @@ public abstract class Piece {
         this.coordinates = coordinates;
     }
 
+    public boolean inBounds(int x, int y) {
+        return x >= 0 && x < 8 && y >= 0 && y < 8;
+    }
+
     @Override
     public int hashCode() {
         return this.coordinates.x() * 1000 + this.coordinates.y() * 100 + this.type.getValue() * 10 + this.side.getValue();
