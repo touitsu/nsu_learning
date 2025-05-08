@@ -1,11 +1,11 @@
 package org.chess;
 
-import org.chess.model.GameController;
+import org.chess.model.GameStateController;
 
 public class Main {
 
     public static void main(String[] argv) {
-        GameController game = new GameController();
+        GameStateController game = new GameStateController();
 
         game.play();
     }

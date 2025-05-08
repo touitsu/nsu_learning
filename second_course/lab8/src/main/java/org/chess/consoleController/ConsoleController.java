@@ -5,12 +5,12 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.chess.controller.Controller;
 import org.chess.model.Board;
-import org.chess.model.exceptions.GameEndedException;
 import org.chess.model.exceptions.MoveUnavailableException;
 import org.jetbrains.annotations.NotNull;
 
-public final class ConsoleController {
+public final class ConsoleController extends Controller {
 
     private static final Scanner scanner = new Scanner(System.in);
     private final Board board;
@@ -37,10 +37,16 @@ public final class ConsoleController {
         }
     }
 
-    public void handleInput() throws InputFormatException, MoveUnavailableException, GameEndedException {
+    @Override
+    public void handleInput() throws MoveUnavailableException {
         String move;
 
-        move = validateString(scanner.nextLine());
+        try {
+            move = validateString(scanner.nextLine());
+        }
+        catch (InputFormatException e) {
+            throw new MoveUnavailableException(e.getMessage());
+        }
 
         board.move(move);
     }

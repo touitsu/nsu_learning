@@ -13,35 +13,35 @@ public final class Bishop extends Piece {
     }
 
     @Override
-    public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
+    public HashSet<Coordinates> getMoves(@NotNull Board currentBoard) {
         HashSet<Coordinates> res;
 
         res = new HashSet<Coordinates>();
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() + i, position.y() + i); i++) {
-            res.add(new Coordinates(position.x() + i, position.y() + i));
-            if (currentBoard.getPieceAt(position.x() + i, position.y() + i) != null) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(this.coordinates.x() + i, this.coordinates.y() + i); i++) {
+            res.add(new Coordinates(this.coordinates.x() + i, this.coordinates.y() + i));
+            if (currentBoard.getPieceAt(this.coordinates.x() + i, this.coordinates.y() + i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() + i, position.y() - i); i++) {
-            res.add(new Coordinates(position.x() + i, position.y() - i));
-            if (currentBoard.getPieceAt(position.x() + i, position.y() - i) != null) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(this.coordinates.x() + i, this.coordinates.y() - i); i++) {
+            res.add(new Coordinates(this.coordinates.x() + i, this.coordinates.y() - i));
+            if (currentBoard.getPieceAt(this.coordinates.x() + i, this.coordinates.y() - i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag == 0 && inBounds(position.x() - i, position.y() + i); i++) {
-            res.add(new Coordinates(position.x() - i, position.y() + i));
-            if (currentBoard.getPieceAt(position.x() - i, position.y() + i) != null) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag == 0 && inBounds(this.coordinates.x() - i, this.coordinates.y() + i); i++) {
+            res.add(new Coordinates(this.coordinates.x() - i, this.coordinates.y() + i));
+            if (currentBoard.getPieceAt(this.coordinates.x() - i, this.coordinates.y() + i) != null) {
                 breakFlag = 1;
             }
         }
 
-        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(position.x() - i, position.y() - i); i++) {
-            res.add(new Coordinates(position.x() - i, position.y() - i));
-            if (currentBoard.getPieceAt(position.x() - i, position.y() - i) != null) {
+        for (int i = 1, breakFlag = 0; i < 8 && breakFlag != 1 && inBounds(this.coordinates.x() - i, this.coordinates.y() - i); i++) {
+            res.add(new Coordinates(this.coordinates.x() - i, this.coordinates.y() - i));
+            if (currentBoard.getPieceAt(this.coordinates.x() - i, this.coordinates.y() - i) != null) {
                 breakFlag = 1;
             }
         }

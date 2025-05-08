@@ -13,26 +13,26 @@ public final class Knight extends Piece {
     }
 
     @Override
-    public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
+    public HashSet<Coordinates> getMoves(@NotNull Board currentBoard) {
         HashSet<Coordinates> res;
 
         res = new HashSet<Coordinates>();
 
         for (int x = 1, y = 2; x < 3 && y > 0; x++, y--) {
-            if (inBounds(position.x() + x, position.y() + y)) {
-                res.add(new Coordinates(position.x() + x, position.y() + y));
+            if (inBounds(this.coordinates.x() + x, this.coordinates.y() + y)) {
+                res.add(new Coordinates(this.coordinates.x() + x, this.coordinates.y() + y));
             }
 
-            if (inBounds(position.x() - x, position.y() + y)) {
-                res.add(new Coordinates(position.x() - x, position.y() + y));
+            if (inBounds(this.coordinates.x() - x, this.coordinates.y() + y)) {
+                res.add(new Coordinates(this.coordinates.x() - x, this.coordinates.y() + y));
             }
 
-            if (inBounds(position.x() + x, position.y() - y)) {
-                res.add(new Coordinates(position.x() + x, position.y() - y));
+            if (inBounds(this.coordinates.x() + x, this.coordinates.y() - y)) {
+                res.add(new Coordinates(this.coordinates.x() + x, this.coordinates.y() - y));
             }
 
-            if (inBounds(position.x() - x, position.y() - y)) {
-                res.add(new Coordinates(position.x() - x, position.y() - y));
+            if (inBounds(this.coordinates.x() - x, this.coordinates.y() - y)) {
+                res.add(new Coordinates(this.coordinates.x() - x, this.coordinates.y() - y));
             }
         }
 

@@ -1,7 +1,7 @@
 package org.chess.model;
 
-import org.chess.model.exceptions.GameEndedException;
 import org.chess.model.exceptions.MoveUnavailableException;
+import org.chess.model.exceptions.RepetitionException;
 import org.chess.model.pieces.*;
 import org.jetbrains.annotations.NotNull;
 
@@ -12,8 +12,11 @@ public final class Board {
     private Side currentMove;
     private final Piece blackKing = new King(Side.BLACK, new Coordinates(4, 7));
     private final Piece whiteKing = new King(Side.WHITE, new Coordinates(4, 0));
-    private boolean isBlackChecked;
-    private boolean isWhiteChecked;
+    private MoveHistory history = new MoveHistory();
+    private boolean blackChecked = false;
+    private boolean whiteChecked = false;
+    private boolean gameEnded = false;
+    private boolean pat = false;
 
     public Board() {
         this.currentMove = Side.WHITE;
@@ -81,7 +84,7 @@ public final class Board {
 
         for (Piece piece : this.pieces.values()) {
             if (piece.getSide() == side.opposite()) {
-                if (piece.calculateAvailableMoves(this, piece.getCoordinates()).contains(coordinates)) {
+                if (piece.getMoves(this, piece.getCoordinates()).contains(coordinates)) {
                     return true;
                 }
             }
@@ -133,7 +136,7 @@ public final class Board {
             throw new MoveUnavailableException("Pieces with side " + piece.getSide() + " can't move while it is " + side + " turn.\n");
         }
 
-        if (!piece.calculateAvailableMoves(this, start).contains(end)) {
+        if (!piece.getMoves(this, start).contains(end)) {
             throw new MoveUnavailableException("Move " + end.toChessNotation() + " is not available for piece at " + start.toChessNotation() + ".\n");
         }
 
@@ -155,16 +158,29 @@ public final class Board {
             if (doesAnyPieceAttack(end, side)) {
                 throw new MoveUnavailableException("King can't move into check.\n");
             }
+
+            //castling under attack
+            if (start.x() - end.x() < -1) {
+                if (doesAnyPieceAttack(new Coordinates(start.x() + 1, start.y()), side) || doesAnyPieceAttack(new Coordinates(start.x() + 2, start.y()), side)) {
+                    throw new MoveUnavailableException("Can't castle with pieces attacking castling positions.\n");
+                }
+            }
+
+            if (start.x() - end.x() > 1) {
+                if (doesAnyPieceAttack(new Coordinates(start.x() - 1, start.y()), side) || doesAnyPieceAttack(new Coordinates(start.x() - 2, start.y()), side)) {
+                    throw new MoveUnavailableException("Can't castle with pieces attacking castling positions.\n");
+                }
+            }
         }
 
         //Checks must be eliminated
-        if (this.isWhiteChecked) {
+        if (this.whiteChecked) {
             if (!moveEliminatesCheck(start, end, this.whiteKing)) {
                 throw new MoveUnavailableException("Your move must eliminate check.\n");
             }
         }
 
-        if (this.isBlackChecked) {
+        if (this.blackChecked) {
             if (!moveEliminatesCheck(start, end, this.blackKing)) {
                 throw new MoveUnavailableException("Your move must eliminate check.\n");
             }
@@ -174,13 +190,35 @@ public final class Board {
     }
 
 
-    private boolean hasAnyMoves(@NotNull Piece king) {
+    private boolean pieceHasAnyMoves(@NotNull Piece piece) {
+
+        for (Piece otherPiece : this.pieces.values()) {
+            if (otherPiece.getSide() == piece.getSide()) {
+                for (Coordinates move : otherPiece.getMoves(this, otherPiece.getCoordinates())) {
+                    try {
+                        if (isMoveAvailable(otherPiece.getCoordinates(), move, piece.getSide())) {
+                            System.out.println(otherPiece + " " + otherPiece.getCoordinates() + " " + move);
+                            return true;
+                        }
+                    }
+                    catch (MoveUnavailableException ignore) {
+
+                    }
+                }
+            }
+        }
+
+        return false;
+    }
+
+
+    private boolean sideHasAnyMoves(@NotNull Side side) {
 
         for (Piece piece : this.pieces.values()) {
-            if (piece.getSide() == king.getSide()) {
-                for (Coordinates move : piece.calculateAvailableMoves(this, piece.getCoordinates())) {
+            if (piece.getSide() == side) {
+                for (Coordinates move : piece.getMoves(this, piece.getCoordinates())) {
                     try {
-                        if (isMoveAvailable(piece.getCoordinates(), move, king.getSide())) {
+                        if (isMoveAvailable(piece.getCoordinates(), move, piece.getSide())) {
                             System.out.println(piece + " " + piece.getCoordinates() + " " + move);
                             return true;
                         }
@@ -196,9 +234,31 @@ public final class Board {
     }
 
 
-    public void move(@NotNull String move) throws MoveUnavailableException, GameEndedException {
+    public boolean isGameEnded() {
+        return this.gameEnded;
+    }
+
+
+    public boolean isWhiteChecked() {
+        return this.whiteChecked;
+    }
+
+
+    public boolean isBlackChecked() {
+        return this.blackChecked;
+    }
+
+
+    public boolean isPat() {
+        return this.pat;
+    }
+
+
+    public void move(@NotNull String move) throws MoveUnavailableException {
         final Coordinates start, end;
-        final Piece piece;
+        Piece piece;
+        int knightsCnt;
+        Side knightSide;
 
         start = new Coordinates(move.charAt(0) - 'a', Character.digit(move.charAt(1), 10) - 1);
         end = new Coordinates(move.charAt(3) - 'a', Character.digit(move.charAt(4), 10) - 1);
@@ -208,7 +268,7 @@ public final class Board {
         if (isMoveAvailable(start, end, this.currentMove)) {
 
             System.out.println(piece.getType() + " " + piece.getSide());
-            System.out.println(piece.calculateAvailableMoves(this, start));
+            System.out.println(piece.getMoves(this, start));
 
             if (getPieceAt(end) != null) {
                 this.pieces.remove(end);
@@ -218,32 +278,99 @@ public final class Board {
             this.pieces.remove(start);
             setPiece(piece);
 
+            //castling
+            if (piece.getType() == PieceType.King) {
+                if (start.x() - end.x() < -1) {
+                    piece = getPieceAt(new Coordinates(7, piece.getCoordinates().y()));
+                    this.pieces.remove(piece.getCoordinates());
+                    piece.move(new Coordinates(5, piece.getCoordinates().y()));
+                    setPiece(piece);
+                }
+
+                if (start.x() - end.x() > 1) {
+                    piece = getPieceAt(new Coordinates(0, piece.getCoordinates().y()));
+                    this.pieces.remove(piece.getCoordinates());
+                    piece.move(new Coordinates(3, piece.getCoordinates().y()));
+                    setPiece(piece);
+                }
+            }
+
+            //promoting
+            if (piece.getType() == PieceType.Pawn && (piece.getCoordinates().y() == 0 || piece.getCoordinates().y() == 7)) {
+                this.pieces.remove(piece.getCoordinates());
+                piece = new Queen(piece.getSide(), piece.getCoordinates());
+                setPiece(piece);
+            }
+
             if (this.currentMove == Side.BLACK) {
-                if (this.isBlackChecked) {
-                    this.isBlackChecked = false;
+                if (this.blackChecked) {
+                    this.blackChecked = false;
                 }
 
                 if (doesAnyPieceAttack(this.whiteKing.getCoordinates(), this.whiteKing.getSide())) {
-                    this.isWhiteChecked = true;
+                    this.whiteChecked = true;
 
-                    if (!hasAnyMoves(this.whiteKing)) {
-                        throw new GameEndedException("White are checkmated!\n");
+                    if (!pieceHasAnyMoves(this.whiteKing)) {
+                        this.gameEnded = true;
                     }
+                }
+
+                if (!sideHasAnyMoves(Side.WHITE)) {
+                    this.pat = true;
                 }
             }
 
             else {
-                if (this.isWhiteChecked) {
-                    this.isWhiteChecked = false;
+                if (this.whiteChecked) {
+                    this.whiteChecked = false;
                 }
 
                 if (doesAnyPieceAttack(this.blackKing.getCoordinates(), this.blackKing.getSide())) {
-                    this.isBlackChecked = true;
+                    this.blackChecked = true;
 
-                    if (!hasAnyMoves(this.blackKing)) {
-                        throw new GameEndedException("Black are checkmated!\n");
+                    if (!pieceHasAnyMoves(this.blackKing)) {
+                        this.gameEnded = true;
                     }
                 }
+
+                if (!sideHasAnyMoves(Side.BLACK)) {
+                    this.pat = true;
+                }
+            }
+
+            //pat with only kings left
+            if (pieces.values().size() == 2) {
+                this.pat = true;
+            }
+
+            //pat with only 1 knight from each side left
+            knightsCnt = 0;
+            knightSide = null;
+
+            if (pieces.values().size() == 3 || pieces.values().size() == 4) {
+                for (Piece leftPiece : this.pieces.values()) {
+                    if (leftPiece.getType() == PieceType.Knight && knightSide != leftPiece.getSide()) {
+                        if (knightSide == null) {
+                            knightSide = leftPiece.getSide();
+                        }
+                        knightsCnt++;
+                    }
+                }
+
+                if ((pieces.values().size() == 3 && knightsCnt == 1) || (pieces.values().size() == 4 && knightsCnt == 2)) {
+                    this.pat = true;
+                }
+            }
+
+            try {
+                this.history.add(move);
+            }
+            catch (RepetitionException e) {
+                this.pat = true;
+            }
+
+            if (this.pat) {
+                this.gameEnded = true;
             }
 
             this.currentMove = this.currentMove == Side.BLACK ? Side.WHITE : Side.BLACK;

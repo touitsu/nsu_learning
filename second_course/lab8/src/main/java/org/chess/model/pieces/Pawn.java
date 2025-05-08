@@ -12,27 +12,27 @@ public final class Pawn extends Piece {
     }
 
     @Override
-    public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
+    public HashSet<Coordinates> getMoves(@NotNull Board currentBoard) {
         HashSet<Coordinates> res;
 
         res = new HashSet<Coordinates>();
 
-        if (currentBoard.getPieceAt(position.x(), position.y() + this.side.getValue()) == null &&
-                (position.y() + this.side.getValue()) < 8 &&
-                (position.y() + this.side.getValue()) > 0)  {
+        if (currentBoard.getPieceAt(this.coordinates.x(), this.coordinates.y() + this.side.getValue()) == null &&
+                (this.coordinates.y() + this.side.getValue()) < 8 &&
+                (this.coordinates.y() + this.side.getValue()) > 0)  {
 
-            res.add(new Coordinates(position.x(), position.y() + this.side.getValue()));
+            res.add(new Coordinates(this.coordinates.x(), this.coordinates.y() + this.side.getValue()));
         }
 
-        if (((position.y() == 1 && super.side == Side.WHITE) || (position.y() == 6 && this.side == Side.BLACK)) &&
-                currentBoard.getPieceAt(position.x(), position.y() + 2 * this.side.getValue()) == null &&
-                currentBoard.getPieceAt(position.x(), position.y() + this.side.getValue()) == null) {
+        if (((this.coordinates.y() == 1 && super.side == Side.WHITE) || (this.coordinates.y() == 6 && this.side == Side.BLACK)) &&
+                currentBoard.getPieceAt(this.coordinates.x(), this.coordinates.y() + 2 * this.side.getValue()) == null &&
+                currentBoard.getPieceAt(this.coordinates.x(), this.coordinates.y() + this.side.getValue()) == null) {
 
-            res.add(new Coordinates(position.x(), position.y() + 2 * super.side.getValue()));
+            res.add(new Coordinates(this.coordinates.x(), this.coordinates.y() + 2 * super.side.getValue()));
         }
 
-        res.add(new Coordinates(position.x() + 1, position.y() + super.side.getValue()));
-        res.add(new Coordinates(position.x() - 1, position.y() + super.side.getValue()));
+        res.add(new Coordinates(this.coordinates.x() + 1, this.coordinates.y() + super.side.getValue()));
+        res.add(new Coordinates(this.coordinates.x() - 1, this.coordinates.y() + super.side.getValue()));
 
         return res;
     }

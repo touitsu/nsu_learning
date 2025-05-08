@@ -3,10 +3,9 @@ package org.chess.model;
 import org.chess.consoleController.ConsoleController;
 import org.chess.consoleExceptions.InputFormatException;
 import org.chess.consoleView.ConsoleOutput;
-import org.chess.model.exceptions.GameEndedException;
 import org.chess.model.exceptions.MoveUnavailableException;
 
-public final class GameController {
+public final class GameStateController {
 
     private final Board board = new Board();
     private final ConsoleOutput console = new ConsoleOutput();
@@ -16,20 +15,31 @@ public final class GameController {
     public void play() {
         this.console.draw(this.board);
 
-        while (gameIsRunning) {
+        while (this.gameIsRunning) {
             try {
                 this.controller.handleInput();
             }
             catch (MoveUnavailableException | InputFormatException e) {
                 this.console.printStatus(e.getMessage());
             }
-            catch (GameEndedException e) {
-                this.console.printStatus(e.getMessage());
-                this.gameIsRunning = false;
-            }
 
             this.console.draw(this.board);
+
+            if (board.isGameEnded()) {
+                this.gameIsRunning = false;
+            }
+        }
+
+        if (board.isWhiteChecked()) {
+            this.console.printStatus("White are mated.\n");
+        }
+
+        else if (board.isBlackChecked()) {
+            this.console.printStatus("Black are mated.\n");
+        }
+
+        else {
+            this.console.printStatus("Game ended in pat.\n");
         }
     }
-
 }

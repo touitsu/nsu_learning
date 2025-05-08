@@ -17,7 +17,11 @@ public abstract class Piece {
         this.coordinates = coordinates;
     }
 
-    abstract public HashSet<Coordinates> calculateAvailableMoves(@NotNull Board currentBoard, @NotNull Coordinates position);
+    public HashSet<Coordinates> getMoves(@NotNull Board currentBoard, @NotNull Coordinates position) {
+        return getMoves(currentBoard);
+    }
+
+    abstract public HashSet<Coordinates> getMoves(@NotNull Board currentBoard);
 
     public Side getSide() {
         return this.side;
