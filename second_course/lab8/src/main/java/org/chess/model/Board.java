@@ -8,11 +8,12 @@ import org.jetbrains.annotations.NotNull;
 import java.util.HashMap;
 
 public final class Board {
+
     private HashMap<Coordinates, Piece> pieces;
     private Side currentMove;
     private final Piece blackKing = new King(Side.BLACK, new Coordinates(4, 7));
     private final Piece whiteKing = new King(Side.WHITE, new Coordinates(4, 0));
-    private MoveHistory history = new MoveHistory();
+    private final MoveHistory history = new MoveHistory();
     private boolean blackChecked = false;
     private boolean whiteChecked = false;
     private boolean gameEnded = false;
@@ -66,12 +67,15 @@ public final class Board {
         return pieces.get(new Coordinates(x, y));
     }
 
-
     public Piece getPieceAt(@NotNull Coordinates coordinates) {
         return pieces.get(coordinates);
     }
 
-    private void setPiece(@NotNull Piece piece) {
+    public Side getCurrentMove() {
+        return this.currentMove;
+    }
+
+    private void setPiece(@NotNull Piece piece) {https://www.youtube.com/watch?v=l-KX1XDa72w
         if (piece.getCoordinates().x() < 0 && piece.getCoordinates().x() > 8 && piece.getCoordinates().y() < 0 && piece.getCoordinates().y() > 8) {
             throw new RuntimeException("Board index " + piece.getCoordinates() + " is out of bounds while setting piece.");
         }

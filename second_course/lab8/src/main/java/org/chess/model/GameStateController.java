@@ -1,7 +1,7 @@
 package org.chess.model;
 
+import org.chess.connection.NetworkManager;
 import org.chess.consoleController.ConsoleController;
-import org.chess.consoleExceptions.InputFormatException;
 import org.chess.consoleView.ConsoleOutput;
 import org.chess.model.exceptions.MoveUnavailableException;
 
@@ -19,11 +19,11 @@ public final class GameStateController {
             try {
                 this.controller.handleInput();
             }
-            catch (MoveUnavailableException | InputFormatException e) {
+            catch (MoveUnavailableException e) {
                 this.console.printStatus(e.getMessage());
             }
 
-            this.console.draw(this.board);
+            //this.console.draw(this.board);
 
             if (board.isGameEnded()) {
                 this.gameIsRunning = false;

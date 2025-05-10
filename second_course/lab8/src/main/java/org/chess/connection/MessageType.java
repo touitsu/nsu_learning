@@ -4,5 +4,6 @@ public enum MessageType {
     MOVE,
     GAME_START,
     GAME_END,
-    PLAYER_LEFT
+    PLAYER_LEFT,
+    MESSAGE
 }
