@@ -20,7 +20,7 @@ public final class MoveHistory {
                 throw new RepetitionException("Three moves repetition.\n");
             }
             else {
-                this.list.remove(0);
+                this.list.removeFirst();
                 this.list.add(move);
             }
         }

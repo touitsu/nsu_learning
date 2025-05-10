@@ -1,4 +1,4 @@
-package org.chess.consoleExceptions;
+package org.chess.console.exceptions;
 
 import org.jetbrains.annotations.NotNull;
 

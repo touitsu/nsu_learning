@@ -68,20 +68,27 @@ public class NetworkManager {
             case PLAYER_LEFT:
                 break;
             case MESSAGE:
-                System.out.println(message.getData());
+                this.controller.receiveMessage(message);
+                break;
+            case GAME_START:
+                this.controller.receiveStartGame(message);
         }
     }
 
     public void sendMove(String move) throws IOException {
-        this.out.writeObject(new Message(MessageType.MOVE, move));
+        this.out.writeObject(new Message(MessageType.MOVE, this.controller.getPlayer(), move));
     }
 
     public void sendMessage(String message) throws IOException {
-        this.out.writeObject(new Message(MessageType.MESSAGE, message));
+        this.out.writeObject(new Message(MessageType.MESSAGE, this.controller.getPlayer(), message));
+    }
+
+    public void sendStartGame() throws IOException {
+        this.out.writeObject(new Message(MessageType.GAME_START, this.controller.getPlayer(), null));
     }
 
     public void close() throws IOException {
-        if (socket != null) {
+        if (this.socket != null) {
             this.socket.close();
         }
     }

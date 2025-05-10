@@ -1,4 +1,4 @@
-package org.chess.consoleView;
+package org.chess.console.view;
 
 import org.chess.model.*;
 import org.chess.model.pieces.*;
@@ -7,14 +7,13 @@ import org.jetbrains.annotations.Nullable;
 
 public final class ConsoleOutput {
 
-    private static void clearLine() {
-        System.out.print("\033[2K\033[1G");
-        System.out.flush();
+    public void printLine(@NotNull String str) {
+        System.out.println(str);
     }
 
-    public void printStatus(@NotNull String str) {
-        clearLine();
-        System.out.println(str);
+    public ConsoleOutput() {
+        System.out.println("Welcome to multiplayer chess.\nTo host a game enter \"h {port}\".\nTo join a game enter \"j {host ip} {host port}\"." +
+                "\nTo talk with your opponent use \"m {your message}\".\nTo make a move just input starting coordinates and end coordinates (e.g. e2 e4).\n\n\nPlayer name: ");
     }
 
     private static String determinePieceOutput(@Nullable Piece piece) {
