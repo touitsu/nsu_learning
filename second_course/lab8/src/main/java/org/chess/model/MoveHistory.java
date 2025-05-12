@@ -28,4 +28,10 @@ public final class MoveHistory {
             this.list.add(move);
         }
     }
+
+    @Override
+    public String toString() {
+        return this.list.toString();
+    }
+
 }

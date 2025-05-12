@@ -14,21 +14,26 @@ public final class GameStateController {
     private final ConsoleOutput console = new ConsoleOutput();
     private final Player player = new Player();
     private final ConsoleController controller = new ConsoleController(this.board, this, player);
-    private boolean gameIsRunning = true;
+    private volatile boolean gameIsRunning = true;
+    private final Thread input = new Thread(this::waitInput);
 
     public void play() {
 
         this.player.setName(this.controller.readLine());
         this.console.printLine("Welcome, " + this.player.getName() + "!");
 
+        this.input.start();
+
         while (this.gameIsRunning) {
-            if (this.controller.isGameStarted()) {
-
-                if (board.isGameEnded()) {
-                    this.gameIsRunning = false;
-                }
+            if (!this.controller.isGameRunning()) {
+                this.gameIsRunning = false;
+                this.input.interrupt();
             }
+        }
+    }
 
+    private void waitInput() {
+        while(this.gameIsRunning) {
             try {
                 this.controller.handleInput();
             }
@@ -36,19 +41,8 @@ public final class GameStateController {
                 this.console.printLine(e.getMessage());
             }
         }
-
-        if (board.isWhiteChecked()) {
-            this.console.printLine("White are mated.\n");
-        }
-
-        else if (board.isBlackChecked()) {
-            this.console.printLine("Black are mated.\n");
-        }
-
-        else {
-            this.console.printLine("Game ended in pat.\n");
-        }
     }
+
 
     public void printLine(@NotNull String string) {
         this.console.printLine(string);

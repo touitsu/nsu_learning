@@ -201,7 +201,6 @@ public final class Board {
                 for (Coordinates move : otherPiece.getMoves(this, otherPiece.getCoordinates())) {
                     try {
                         if (isMoveAvailable(otherPiece.getCoordinates(), move, piece.getSide())) {
-                            System.out.println(otherPiece + " " + otherPiece.getCoordinates() + " " + move);
                             return true;
                         }
                     }
@@ -214,7 +213,6 @@ public final class Board {
 
         return false;
     }
-
 
     private boolean sideHasAnyMoves(@NotNull Side side) {
 
@@ -223,7 +221,6 @@ public final class Board {
                 for (Coordinates move : piece.getMoves(this, piece.getCoordinates())) {
                     try {
                         if (isMoveAvailable(piece.getCoordinates(), move, piece.getSide())) {
-                            System.out.println(piece + " " + piece.getCoordinates() + " " + move);
                             return true;
                         }
                     }
@@ -237,28 +234,27 @@ public final class Board {
         return false;
     }
 
-
     public boolean isGameEnded() {
         return this.gameEnded;
     }
 
+    public void setGameEnded(boolean val) {
+        this.gameEnded = val;
+    }
 
     public boolean isWhiteChecked() {
         return this.whiteChecked;
     }
 
-
     public boolean isBlackChecked() {
         return this.blackChecked;
     }
-
 
     public boolean isPat() {
         return this.pat;
     }
 
-
-    public void move(@NotNull String move) throws MoveUnavailableException {
+    public void move(@NotNull String move, @NotNull Side side) throws MoveUnavailableException {
         final Coordinates start, end;
         Piece piece;
         int knightsCnt;
@@ -271,8 +267,9 @@ public final class Board {
 
         if (isMoveAvailable(start, end, this.currentMove)) {
 
-            System.out.println(piece.getType() + " " + piece.getSide());
-            System.out.println(piece.getMoves(this, start));
+            if (piece.getSide() != side) {
+                throw new MoveUnavailableException("Player with side " + side + " can't move " + piece.getSide() + " piece.\n");
+            }
 
             if (getPieceAt(end) != null) {
                 this.pieces.remove(end);
@@ -343,7 +340,7 @@ public final class Board {
             }
 
             //pat with only kings left
-            if (pieces.values().size() == 2) {
+            if (pieces.size() == 2) {
                 this.pat = true;
             }
 
@@ -351,7 +348,7 @@ public final class Board {
             knightsCnt = 0;
             knightSide = null;
 
-            if (pieces.values().size() == 3 || pieces.values().size() == 4) {
+            if (pieces.size() == 3 || pieces.size() == 4) {
                 for (Piece leftPiece : this.pieces.values()) {
                     if (leftPiece.getType() == PieceType.Knight && knightSide != leftPiece.getSide()) {
                         if (knightSide == null) {
@@ -361,7 +358,7 @@ public final class Board {
                     }
                 }
 
-                if ((pieces.values().size() == 3 && knightsCnt == 1) || (pieces.values().size() == 4 && knightsCnt == 2)) {
+                if ((pieces.size() == 3 && knightsCnt == 1) || (pieces.size() == 4 && knightsCnt == 2)) {
                     this.pat = true;
                 }
             }

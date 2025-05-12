@@ -1,7 +1,6 @@
 package org.chess.console.controller;
 
 import org.chess.connection.Message;
-import org.chess.console.exceptions.ConsoleException;
 import org.chess.console.exceptions.InputFormatException;
 
 import java.io.IOException;
@@ -9,6 +8,7 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.chess.console.exceptions.NoInputException;
 import org.chess.console.exceptions.UnknownCommandException;
 import org.chess.controller.Controller;
 import org.chess.model.Board;
@@ -80,11 +80,13 @@ public final class ConsoleController extends Controller {
     }
 
     @Override
-    public void handleInput() throws MoveUnavailableException, UnknownCommandException {
+    public void handleInput() throws MoveUnavailableException, UnknownCommandException, NoInputException {
         String command, input;
+        input = scanner.nextLine();
 
-        command = null;
-        input = this.scanner.nextLine();
+        if (input == null) {
+            throw new NoInputException("Waited to long for input.\n");
+        }
 
         if (this.gameStarted) {
             try {
@@ -98,7 +100,14 @@ public final class ConsoleController extends Controller {
                 try {
                     command = validateMove(input);
 
-                    board.move(command);
+                    try {
+                        board.move(command, this.side);
+                        sendMove(command);
+                        this.gameController.draw();
+                    }
+                    catch (MoveUnavailableException e) {
+                        throw e;
+                    }
                 }
                 catch (InputFormatException e) {
                     throw new MoveUnavailableException(e.getMessage());
@@ -128,20 +137,6 @@ public final class ConsoleController extends Controller {
     }
 
     @Override
-    public void handleOpponentMove(String input) throws MoveUnavailableException {
-        String move;
-
-        try {
-            move = validateMove(input);
-        }
-        catch (InputFormatException e) {
-            throw new MoveUnavailableException(e.getMessage());
-        }
-
-        board.move(move);
-    }
-
-    @Override
     public void host(int port) {
         this.side = Side.WHITE;
 
@@ -150,7 +145,7 @@ public final class ConsoleController extends Controller {
             this.networkManager.host(port);
             this.isHost = true;
             this.gameController.printLine("Successfully hosted game on port " + port + ".\n");
-            startGame();
+            sendStartGame();
         }
         catch(IOException e) {
             this.gameController.printLine("Failed to host game.\n" + e.getMessage());
@@ -164,10 +159,65 @@ public final class ConsoleController extends Controller {
         try {
             this.networkManager.join(host, port);
             this.gameController.printLine("Successfully joined game.\n");
-            startGame();
+            sendStartGame();
         }
         catch(IOException e) {
             this.gameController.printLine("Failed to join game.\nReason: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void handleOpponentMove(@NotNull Message message) {
+        String move;
+
+        try {
+            move = validateMove((String) message.getData());
+            this.gameController.printLine(message.getSender() +  " made a " + message.getData() + " move.");
+            board.move(move, this.side.opposite());
+
+            try {
+                if (this.board.isGameEnded()) {
+                    if (this.board.isPat()) {
+                        sendEndGame("Pat");
+                    }
+                    else if(this.board.isBlackChecked()) {
+                        sendEndGame("Black mated");
+                    }
+                    else {
+                        sendEndGame("White mated");
+                    }
+                }
+            }
+            catch (IOException e) {
+                this.gameController.printLine("Failed to send end game.\nReason: " + e.getMessage());
+            }
+
+            this.gameController.draw();
+        }
+        catch (MoveUnavailableException | InputFormatException e) {
+            this.gameController.printLine("Opponent send an unavailable move.\nReason: " + e.getMessage());
+        }
+    }
+
+    @Override
+    public void sendMove(@NotNull String move) {
+        try {
+            this.networkManager.sendMove(move);
+
+            if (this.board.isGameEnded()) {
+                if (this.board.isPat()) {
+                    sendEndGame("Pat");
+                }
+                else if(this.board.isBlackChecked()) {
+                    sendEndGame("Black mated");
+                }
+                else {
+                    sendEndGame("White mated");
+                }
+            }
+        }
+        catch (IOException e) {
+            this.gameController.printLine("Failed to send move.\nReason: " + e.getMessage());
         }
     }
 
@@ -185,16 +235,17 @@ public final class ConsoleController extends Controller {
     }
 
     @Override
-    public void receiveMessage(@NotNull Message message) {
+    public void handleMessage(@NotNull Message message) {
         this.gameController.printLine(message.getSender().getName() + ": " + message.getData());
     }
 
-    public void startGame() throws IOException{
+    @Override
+    public void sendStartGame() throws IOException {
         this.networkManager.sendStartGame();
     }
 
     @Override
-    public void receiveStartGame(@NotNull Message message) {
+    public void handleStartGame(@NotNull Message message) {
         this.gameStarted = true;
         if (isHost) {
             this.gameController.printLine("Player " + message.getSender().getName() + " joined your game.\n");
@@ -206,11 +257,77 @@ public final class ConsoleController extends Controller {
         }
     }
 
+    @Override
+    public void sendContinueGame() throws IOException {
+        this.networkManager.sendContinueGame();
+    }
+
+    @Override
+    public void handleContinueGame() {
+        this.board.setGameEnded(false);
+    }
+
+    @Override
+    public void sendEndGame(@NotNull String reason) throws IOException {
+        this.networkManager.sendEndGame(reason);
+    }
+
+    @Override
+    public void handleEndGame(@NotNull Message message) {
+        String reason;
+
+        reason = (String) message.getData();
+
+        try {
+            if (reason.equals("Pat")) {
+                if (this.board.isPat()) {
+                    this.gameRunning = false;
+                    this.gameController.printLine("Game ended in pat.");
+                    this.networkManager.close();
+                    this.scanner.close();
+                }
+                else {
+                    sendContinueGame();
+                }
+            }
+            else if(reason.equals("Black mated")) {
+                if (this.board.isBlackChecked() && this.board.isGameEnded()) {
+                    this.gameRunning = false;
+                    this.gameController.printLine("Black are mated.");
+                    this.networkManager.close();
+                    this.scanner.close();
+                }
+                else {
+                    sendContinueGame();
+                }
+            }
+            else {
+                if (this.board.isWhiteChecked() && this.board.isGameEnded()) {
+                    this.gameRunning = false;
+                    this.gameController.printLine("White are mated.");
+                    this.networkManager.close();
+                    this.scanner.close();
+                }
+                else {
+                    sendContinueGame();
+                }
+            }
+        }
+
+        catch (IOException e) {
+            this.gameController.printLine("Failed to continue game.");
+        }
+    }
+
     public String readLine() {
         return this.scanner.nextLine();
     }
 
     public boolean isGameStarted() {
         return this.gameStarted;
+    }
+
+    public boolean isGameRunning() {
+        return this.gameRunning;
     }
 }
