@@ -1,0 +1,30 @@
+package org.Operations;
+
+import org.Exceptions.*;
+import org.StackCalculator.Context;
+
+import java.util.ArrayList;
+
+public final class Division extends Operation {
+
+    @Override
+    public void complete(Context context, ArrayList<String> args) throws OperationException, StackException {
+        double d1, d2;
+
+        if (context.stack().size() < 2) {
+            throw new StackUnderflowException("Stack doesn't contain two elements.");
+        }
+
+        d1 = context.stack().pop();
+        d2 = context.stack().pop();
+
+        if (d2 == 0.0f) {
+            context.stack().push(d2);
+            context.stack().push(d1);
+            throw new DivisionByZeroException("Division by zero.");
+        }
+        else {
+            context.stack().push(d1 / d2);
+        }
+    }
+}
