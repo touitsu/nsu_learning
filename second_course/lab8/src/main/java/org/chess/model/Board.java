@@ -254,6 +254,14 @@ public final class Board {
         return this.pat;
     }
 
+    public HashMap<Coordinates, Piece> getMap() {
+        return this.pieces;
+    }
+
+    public void setMap(HashMap<Coordinates, Piece> map) {
+        this.pieces = map;
+    }
+
     public void move(@NotNull String move, @NotNull Side side) throws MoveUnavailableException {
         final Coordinates start, end;
         Piece piece;

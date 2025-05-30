@@ -38,7 +38,9 @@ public final class GameStateController {
                 this.controller.handleInput();
             }
             catch (ConsoleException | ModelException e) {
-                this.console.printLine(e.getMessage());
+                if (this.gameIsRunning) {
+                    this.console.printLine(e.getMessage());
+                }
             }
         }
     }

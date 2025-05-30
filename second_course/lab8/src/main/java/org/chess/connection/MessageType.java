@@ -6,5 +6,6 @@ public enum MessageType {
     GAME_END,
     GAME_CONTINUE,
     PLAYER_LEFT,
-    MESSAGE
+    MESSAGE,
+    SYNC
 }

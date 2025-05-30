@@ -4,6 +4,7 @@ import org.chess.connection.Message;
 import org.chess.console.exceptions.InputFormatException;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -12,8 +13,10 @@ import org.chess.console.exceptions.NoInputException;
 import org.chess.console.exceptions.UnknownCommandException;
 import org.chess.controller.Controller;
 import org.chess.model.Board;
+import org.chess.model.Coordinates;
 import org.chess.model.GameStateController;
 import org.chess.model.exceptions.MoveUnavailableException;
+import org.chess.model.pieces.Piece;
 import org.chess.model.pieces.Side;
 import org.chess.player.Player;
 import org.jetbrains.annotations.NotNull;
@@ -133,7 +136,7 @@ public final class ConsoleController extends Controller {
 
     @Override
     public void handleDisconnection() {
-
+        this.gameController.printLine("Opponent disconnected, waiting for reconnect...");
     }
 
     @Override
@@ -246,15 +249,26 @@ public final class ConsoleController extends Controller {
 
     @Override
     public void handleStartGame(@NotNull Message message) {
-        this.gameStarted = true;
-        if (isHost) {
-            this.gameController.printLine("Player " + message.getSender().getName() + " joined your game.\n");
-            this.gameController.draw();
+        if (this.gameStarted) {
+            try {
+                this.sendSync();
+            }
+            catch (IOException e) {
+                this.gameController.printLine("Failed to synchronize.");
+            }
         }
         else {
-            this.gameController.printLine("You've joined " + message.getSender().getName() + "'s game.\n");
-            this.gameController.draw();
+            this.gameStarted = true;
+            if (this.isHost) {
+                this.gameController.printLine("Player " + message.getSender().getName() + " joined your game.\n");
+                this.gameController.draw();
+            }
+            else {
+                this.gameController.printLine("You've joined " + message.getSender().getName() + "'s game.\n");
+                this.gameController.draw();
+            }
         }
+
     }
 
     @Override
@@ -272,50 +286,65 @@ public final class ConsoleController extends Controller {
         this.networkManager.sendEndGame(reason);
     }
 
+    public void endGame() {
+        try {
+            this.gameRunning = false;
+            this.gameController.printLine("Press enter to exit...");
+            this.networkManager.close();
+            this.scanner.close();
+        }
+        catch (IOException e) {
+            this.gameController.printLine("Failed to close network manager.");
+        }
+    }
+
     @Override
     public void handleEndGame(@NotNull Message message) {
         String reason;
 
         reason = (String) message.getData();
 
-        try {
-            if (reason.equals("Pat")) {
-                if (this.board.isPat()) {
-                    this.gameRunning = false;
-                    this.gameController.printLine("Game ended in pat.");
-                    this.networkManager.close();
-                    this.scanner.close();
-                }
-                else {
-                    sendContinueGame();
-                }
-            }
-            else if(reason.equals("Black mated")) {
-                if (this.board.isBlackChecked() && this.board.isGameEnded()) {
-                    this.gameRunning = false;
-                    this.gameController.printLine("Black are mated.");
-                    this.networkManager.close();
-                    this.scanner.close();
-                }
-                else {
-                    sendContinueGame();
-                }
+        if (reason.equals("Pat")) {
+            if (this.board.isPat()) {
+                this.gameController.printLine("Game ended in pat.");
+                endGame();
             }
             else {
-                if (this.board.isWhiteChecked() && this.board.isGameEnded()) {
-                    this.gameRunning = false;
-                    this.gameController.printLine("White are mated.");
-                    this.networkManager.close();
-                    this.scanner.close();
-                }
-                else {
+                try {
                     sendContinueGame();
+                }
+                catch (IOException e) {
+                    this.gameController.printLine("Failed to continue game.");
                 }
             }
         }
-
-        catch (IOException e) {
-            this.gameController.printLine("Failed to continue game.");
+        else if(reason.equals("Black mated")) {
+            if (this.board.isBlackChecked() && this.board.isGameEnded()) {
+                this.gameController.printLine("Black are mated.");
+                endGame();
+            }
+            else {
+                try {
+                    sendContinueGame();
+                }
+                catch (IOException e) {
+                    this.gameController.printLine("Failed to continue game.");
+                }
+            }
+        }
+        else {
+            if (this.board.isWhiteChecked() && this.board.isGameEnded()) {
+                this.gameController.printLine("White are mated.");
+                endGame();
+            }
+            else {
+                try {
+                    sendContinueGame();
+                }
+                catch (IOException e) {
+                    this.gameController.printLine("Failed to continue game.");
+                }
+            }
         }
     }
 
@@ -329,5 +358,14 @@ public final class ConsoleController extends Controller {
 
     public boolean isGameRunning() {
         return this.gameRunning;
+    }
+
+    @SuppressWarnings("unchecked")
+    public void sync(@NotNull Message message) {
+        this.board.setMap((HashMap<Coordinates, Piece>)message.getData());
+    }
+
+    public void sendSync() throws IOException {
+        this.networkManager.sendSync(this.board.getMap());
     }
 }

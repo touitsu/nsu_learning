@@ -1,7 +1,8 @@
 package org.chess.connection;
 
 import org.chess.controller.Controller;
-import org.chess.model.exceptions.MoveUnavailableException;
+import org.chess.model.Coordinates;
+import org.chess.model.pieces.Piece;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -9,14 +10,16 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
 
 public class NetworkManager {
     private Socket socket;
+    private ServerSocket serverSocket;
     private ObjectOutputStream out;
     private ObjectInputStream in;
     private final Controller controller;
-    private final Thread listener = new Thread(this::listen);
-
+    private volatile boolean connected;
+    private Thread listener;
 
     public NetworkManager(@NotNull Controller controller) {
         this.controller = controller;
@@ -25,12 +28,14 @@ public class NetworkManager {
 
     private void listen() {
         try {
-            while (true) {
+            while (!Thread.currentThread().isInterrupted()) {
                 processMessage((Message) in.readObject());
             }
         }
         catch (IOException | ClassNotFoundException e) {
             this.controller.handleDisconnection();
+            this.connected = false;
+            this.listener.interrupt();
         }
     }
 
@@ -39,17 +44,21 @@ public class NetworkManager {
         this.out = new ObjectOutputStream(this.socket.getOutputStream());
         this.in = new ObjectInputStream(this.socket.getInputStream());
 
-        listener.start();
+        this.listener = new Thread(this::listen);
+
+        this.listener.start();
+        this.connected = true;
     }
 
 
     public void host(int port) throws IOException {
-        ServerSocket serverSocket = new ServerSocket(port);
+        this.serverSocket = new ServerSocket(port);
 
         this.socket = serverSocket.accept();
 
         setStreams();
     }
+
 
     public void join(@NotNull String host, int port) throws IOException{
         this.socket = new Socket(host, port);
@@ -77,6 +86,9 @@ public class NetworkManager {
             case GAME_CONTINUE:
                 this.controller.handleContinueGame();
                 break;
+            case SYNC:
+                this.controller.sync(message);
+                break;
         }
     }
 
@@ -100,10 +112,18 @@ public class NetworkManager {
         this.out.writeObject(new Message(MessageType.GAME_CONTINUE, this.controller.getPlayer(), null));
     }
 
+    public void sendSync(HashMap<Coordinates, Piece> map) throws IOException {
+        this.out.writeObject(new Message(MessageType.SYNC, this.controller.getPlayer(), map));
+    }
+
     public void close() throws IOException {
         if (this.socket != null) {
             this.socket.close();
             this.listener.interrupt();
         }
+    }
+
+    public boolean getConnected() {
+        return this.connected;
     }
 }
