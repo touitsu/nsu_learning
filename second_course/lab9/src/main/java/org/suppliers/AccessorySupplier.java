@@ -3,8 +3,10 @@ package org.suppliers;
 import org.factory.Accessory;
 import org.storages.Storage;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class AccessorySupplier extends Supplier<Accessory> {
-    private static int nextId = 1;
+    private static AtomicInteger nextId = new AtomicInteger(1);
 
     public AccessorySupplier(Storage<Accessory> storage, int delay) {
         super(storage, delay);
@@ -12,6 +14,6 @@ public class AccessorySupplier extends Supplier<Accessory> {
 
     @Override
     protected Accessory createPart() {
-        return new Accessory(nextId++);
+        return new Accessory(nextId.addAndGet(1));
     }
 }

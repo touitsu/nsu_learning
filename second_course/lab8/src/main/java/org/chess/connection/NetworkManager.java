@@ -10,7 +10,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.HashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NetworkManager {
     private Socket socket;
@@ -20,6 +22,14 @@ public class NetworkManager {
     private final Controller controller;
     private volatile boolean connected;
     private Thread listener;
+    private volatile boolean isHost = false;
+    private volatile boolean shutdown = false;
+    private Thread reconnectThread;
+    private String reconnectHost;
+    private int reconnectPort;
+    private volatile long lastReceivedTime;
+    private Thread heartbeatThread;
+    private final AtomicBoolean running = new AtomicBoolean(false);
 
     public NetworkManager(@NotNull Controller controller) {
         this.controller = controller;
@@ -27,18 +37,36 @@ public class NetworkManager {
 
 
     private void listen() {
+        running.set(true);
+        lastReceivedTime = System.currentTimeMillis();
+
         try {
-            while (!Thread.currentThread().isInterrupted()) {
-                processMessage((Message) in.readObject());
+            while (running.get()) {
+                try {
+                    socket.setSoTimeout(1000);
+                    Message message = (Message) in.readObject();
+                    lastReceivedTime = System.currentTimeMillis();
+                    processMessage(message);
+                } catch (SocketTimeoutException e) {
+                    if (System.currentTimeMillis() - lastReceivedTime > 10000) {
+                        throw new IOException("Connection timeout");
+                    }
+                }
             }
-        }
-        catch (IOException | ClassNotFoundException e) {
-            this.controller.handleDisconnection();
-            this.connected = false;
-            this.listener.interrupt();
+        } catch (IOException | ClassNotFoundException e) {
+            handleDisconnect();
         }
     }
 
+    private void handleDisconnect() {
+        running.set(false);
+        this.controller.handleDisconnection();
+        this.connected = false;
+
+        if (!isHost && !shutdown) {
+            startReconnectionThread();
+        }
+    }
 
     private void setStreams() throws IOException {
         this.out = new ObjectOutputStream(this.socket.getOutputStream());
@@ -47,6 +75,9 @@ public class NetworkManager {
         this.listener = new Thread(this::listen);
 
         this.listener.start();
+
+        startHeartbeat();
+
         this.connected = true;
     }
 
@@ -56,14 +87,75 @@ public class NetworkManager {
 
         this.socket = serverSocket.accept();
 
+        serverSocket.close();
         setStreams();
     }
 
 
     public void join(@NotNull String host, int port) throws IOException{
+        this.isHost = false;
+        this.shutdown = false;
+        this.reconnectHost = host;
+        this.reconnectPort = port;
         this.socket = new Socket(host, port);
 
         setStreams();
+    }
+
+
+    private void startHeartbeat() {
+        heartbeatThread = new Thread(() -> {
+            while (running.get() && !shutdown) {
+                try {
+                    Thread.sleep(5000); // Send heartbeat every 5 seconds
+                    if (running.get() && connected) {
+                        out.writeObject(new Message(MessageType.HEARTBEAT, null, null));
+                        out.flush();
+                    }
+                } catch (InterruptedException | IOException e) {
+                    if (!shutdown) {
+                        handleDisconnect();
+                    }
+                    break;
+                }
+            }
+        });
+        heartbeatThread.setDaemon(true);
+        heartbeatThread.start();
+    }
+
+
+    private void startReconnectionThread() {
+        if (this.reconnectThread != null && this.reconnectThread.isAlive()) {
+            return;
+        }
+
+        System.out.println("reconnecting");
+
+        reconnectThread = new Thread(() -> {
+            while (!this.shutdown) {
+                for (int attempts = 0; attempts < 10; attempts++) {
+                    try {
+                        Thread.sleep(1000);
+                        reconnect();
+                        break;
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        break;
+                    } catch (IOException ignore) {
+                        System.out.println(ignore.getMessage());
+                    }
+                }
+                try {
+                    close();
+                    this.controller.writeMessage("Failed to reconnect");
+                    this.controller.endGame();
+                } catch (IOException ignore) {
+                    System.out.println("Failed to close");
+                }
+            }
+        });
+        reconnectThread.start();
     }
 
     private void processMessage(@NotNull Message message) {
@@ -86,10 +178,27 @@ public class NetworkManager {
             case GAME_CONTINUE:
                 this.controller.handleContinueGame();
                 break;
+            case REQUEST_SYNC:
+                try {
+                    this.controller.sendSync();
+                }
+                catch (IOException e) {
+                    System.out.println("Failed to request sync.");
+                }
+                break;
             case SYNC:
-                this.controller.sync(message);
+                this.controller.handleSync(message);
+                break;
+            case HEARTBEAT:
+                this.lastReceivedTime = System.currentTimeMillis();
                 break;
         }
+    }
+
+    private void reconnect() throws IOException {
+        this.socket = new Socket(reconnectHost, reconnectPort);
+        setStreams();
+        this.controller.handleReconnection();
     }
 
     public void sendMove(@NotNull String move) throws IOException {
@@ -116,10 +225,30 @@ public class NetworkManager {
         this.out.writeObject(new Message(MessageType.SYNC, this.controller.getPlayer(), map));
     }
 
+    public void sendSyncRequest() throws IOException {
+        this.out.writeObject(new Message(MessageType.REQUEST_SYNC, this.controller.getPlayer(), null));
+    }
+
     public void close() throws IOException {
-        if (this.socket != null) {
-            this.socket.close();
-            this.listener.interrupt();
+        this.shutdown = true;
+        this.running.set(false);
+        this.connected = false;
+
+        if (listener != null) {
+            listener.interrupt();
+        }
+        if (reconnectThread != null) {
+            reconnectThread.interrupt();
+        }
+        if (heartbeatThread != null) {
+            heartbeatThread.interrupt();
+        }
+
+        if (socket != null && !socket.isClosed()) {
+            socket.close();
+        }
+        if (serverSocket != null && !serverSocket.isClosed()) {
+            serverSocket.close();
         }
     }
 

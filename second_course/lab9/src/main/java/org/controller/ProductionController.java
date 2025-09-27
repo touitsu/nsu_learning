@@ -40,7 +40,7 @@ public class ProductionController implements Runnable {
                         bodyStorage, engineStorage, accessoryStorage, carStorage
                 ));
 
-                Thread.sleep(10);
+                //Thread.sleep(10);
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

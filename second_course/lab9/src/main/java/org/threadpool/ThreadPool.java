@@ -20,7 +20,7 @@ public class ThreadPool {
 
     public void addTask(Task task) throws InterruptedException {
         if (isRunning) {
-            taskQueue.put(task); // Блокируется при заполненной очереди
+            taskQueue.put(task);
         }
     }
 

@@ -186,7 +186,7 @@ public final class ConsoleController extends Controller {
                     else if(this.board.isBlackChecked()) {
                         sendEndGame("Black mated");
                     }
-                    else {
+                    else if (this.board.isWhiteChecked()) {
                         sendEndGame("White mated");
                     }
                 }
@@ -361,11 +361,21 @@ public final class ConsoleController extends Controller {
     }
 
     @SuppressWarnings("unchecked")
-    public void sync(@NotNull Message message) {
+    public void handleSync(@NotNull Message message) {
         this.board.setMap((HashMap<Coordinates, Piece>)message.getData());
     }
 
+    public void handleReconnection() throws IOException {
+        this.networkManager.sendSyncRequest();
+    }
+
+    @Override
     public void sendSync() throws IOException {
         this.networkManager.sendSync(this.board.getMap());
+    }
+
+    @Override
+    public void writeMessage(String str) {
+        this.gameController.printLine(str);
     }
 }

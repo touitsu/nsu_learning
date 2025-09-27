@@ -3,8 +3,10 @@ package org.suppliers;
 import org.factory.Body;
 import org.storages.Storage;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class BodySupplier extends Supplier<Body> {
-    private static int nextId = 1;
+    private static AtomicInteger nextId = new AtomicInteger(1);
 
     public BodySupplier(Storage<Body> storage, int delay) {
         super(storage, delay);
@@ -12,6 +14,6 @@ public class BodySupplier extends Supplier<Body> {
 
     @Override
     protected Body createPart() {
-        return new Body(nextId++);
+        return new Body(nextId.addAndGet(1));
     }
 }

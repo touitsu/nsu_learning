@@ -1,14 +1,16 @@
 package org.factory;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 public class Car {
-    private static int nextId = 1;
+    private static AtomicInteger nextId = new AtomicInteger(1);
     private final int id;
     private final Body body;
     private final Engine engine;
     private final Accessory accessory;
 
     public Car(Body body, Engine engine, Accessory accessory) {
-        this.id = nextId++;
+        this.id = nextId.addAndGet(1);
         this.body = body;
         this.engine = engine;
         this.accessory = accessory;

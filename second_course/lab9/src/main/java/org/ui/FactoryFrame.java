@@ -14,10 +14,10 @@ import java.awt.event.WindowEvent;
 public class FactoryFrame extends JFrame {
     private final Timer timer = new Timer(100, e -> updateStats());
     private final StatsPanel statsPanel = new StatsPanel();
-    private final JSlider bodySlider = new JSlider(500, 2000, 1000);
-    private final JSlider engineSlider = new JSlider(500, 2000, 1000);
-    private final JSlider accessorySlider = new JSlider(500, 2000, 1000);
-    private final JSlider dealerSlider = new JSlider(500, 5000, 2000);
+    private final JSlider bodySlider = new JSlider(0, 2000, 1000);
+    private final JSlider engineSlider = new JSlider(0, 2000, 1000);
+    private final JSlider accessorySlider = new JSlider(0, 2000, 1000);
+    private final JSlider dealerSlider = new JSlider(0, 5000, 2000);
 
     private final BodyStorage bodyStorage;
     private final EngineStorage engineStorage;

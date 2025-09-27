@@ -32,18 +32,15 @@ public class Main {
                 EngineSupplier.class, engineStorage, config.engineSuppliersCount, 1000);
 
         AccessorySupplier[] accessorySuppliers = createSuppliers(
-                AccessorySupplier.class, accessoryStorage, config.accessorySuppliers, 500);
+                AccessorySupplier.class, accessoryStorage, config.accessorySuppliers, 1000);
 
-        // Создание дилеров
         Dealer[] dealers = new Dealer[config.dealers];
         for (int i = 0; i < config.dealers; i++) {
             dealers[i] = new Dealer(carStorage, i + 1, 3000);
         }
 
-        // Пул потоков с ограниченной очередью
         ThreadPool threadPool = new ThreadPool(config.workers, config.threadPoolQueueSize);
 
-        // Контроллер производства
         ProductionController controller = new ProductionController(
                 carStorage, threadPool, bodyStorage, engineStorage, accessoryStorage
         );
@@ -51,13 +48,11 @@ public class Main {
         controllerThread.setDaemon(true);
         controllerThread.start();
 
-        // Запуск потоков
         startDaemonThreads(bodySuppliers);
         startDaemonThreads(engineSuppliers);
         startDaemonThreads(accessorySuppliers);
         startDaemonThreads(dealers);
 
-        // Графический интерфейс
         SwingUtilities.invokeLater(() ->
                 new FactoryFrame(config, bodyStorage, engineStorage, accessoryStorage, carStorage,
                         bodySuppliers, engineSuppliers, accessorySuppliers, dealers, threadPool)

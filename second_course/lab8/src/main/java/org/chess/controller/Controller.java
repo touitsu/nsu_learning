@@ -52,13 +52,17 @@ public abstract class Controller {
 
     abstract public void handleContinueGame();
 
-    abstract public void sync(@NotNull Message message);
-
     abstract public void sendSync() throws IOException;
+
+    abstract public void handleSync(@NotNull Message message);
 
     public Player getPlayer() {
         return this.player;
     }
 
     abstract public void endGame();
+
+    abstract public void handleReconnection() throws IOException;
+
+    abstract public void writeMessage(String str);
 }
