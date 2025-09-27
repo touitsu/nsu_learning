@@ -7,5 +7,7 @@ public enum MessageType {
     GAME_CONTINUE,
     PLAYER_LEFT,
     MESSAGE,
-    SYNC
+    SYNC,
+    REQUEST_SYNC,
+    HEARTBEAT
 }

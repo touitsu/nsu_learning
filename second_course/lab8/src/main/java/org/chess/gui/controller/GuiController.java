@@ -285,6 +285,15 @@ public class GuiController extends Controller {
     }
 
     @Override
+    public void writeMessage(String str) {
+        SwingUtilities.invokeLater(() -> {
+            view.showMessage(str);
+            view.setConnectionEnabled(true);
+            view.setMessageEnabled(false);
+        });
+    }
+
+    @Override
     public void endGame() {
         try {
             this.gameRunning = false;
@@ -302,7 +311,7 @@ public class GuiController extends Controller {
     }
 
     @Override
-    public void sync(@NotNull Message message) {
+    public void handleSync(@NotNull Message message) {
         @SuppressWarnings("unchecked")
         HashMap<Coordinates, Piece> map = (HashMap<Coordinates, Piece>) message.getData();
         this.board.setMap(map);
@@ -314,6 +323,11 @@ public class GuiController extends Controller {
     @Override
     public void sendSync() throws IOException {
         this.networkManager.sendSync(this.board.getMap());
+    }
+
+    @Override
+    public void handleReconnection() throws IOException {
+        this.networkManager.sendSyncRequest();
     }
 
     public void attemptMove(String move) {
