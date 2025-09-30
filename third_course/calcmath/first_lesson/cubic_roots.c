@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <math.h>
 
 typedef struct coefs_t {
 	double a;
@@ -118,7 +119,7 @@ void calc_roots(const coefs_t* coefs, const double eps, const double delta, root
 	roots->third = toNaN.d;
 
 	if (disc > 0) {
-		asm volatile ("sqrtsd %1, %0" : "=x" (disc_sqrt) : "x" (disc));
+    disc_sqrt = sqrt(disc);
 
 		alpha = (-coefs->b * 2 - disc_sqrt) / (2 * 3 * coefs->a);
 		beta = alpha + disc_sqrt * 2 / (2 * 3 * coefs->a);
