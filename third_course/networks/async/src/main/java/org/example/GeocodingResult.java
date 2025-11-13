@@ -1,4 +1,3 @@
 package org.example;
 
-public record GeocodingResult() {
-}
+public record GeocodingResult(String address, double lat, double lon) {}
